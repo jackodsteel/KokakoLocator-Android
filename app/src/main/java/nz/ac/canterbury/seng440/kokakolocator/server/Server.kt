@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng440.kokakolocator.server
 
 import android.util.Log
+import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -13,8 +14,6 @@ import retrofit2.http.POST
 
 const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
 //const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
-
-const val TAG = "CacophonyServer"
 
 interface ICacophonyServer {
     fun login(username: String, password: String, onSuccess: (LoginResponseBody) -> Unit, onError: (String) -> Unit)

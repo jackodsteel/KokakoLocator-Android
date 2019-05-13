@@ -1,15 +1,14 @@
 package nz.ac.canterbury.seng440.kokakolocator
 
 import android.Manifest
-import android.content.pm.PackageManager
-import android.location.Location
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AlertDialog
-import android.util.Log
 import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -17,11 +16,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import nz.ac.canterbury.seng440.kokakolocator.ui.login.LoginActivity
 import nz.ac.canterbury.seng440.kokakolocator.ui.login.RegisterActivity
+import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 
 const val PREFS_KEY = "PREFS"
 const val TOKEN_KEY = "TOKEN"
-
-private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +28,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val loginButton = findViewById<Button>(R.id.loginButton)
+        loginButton.setOnClickListener {
+            val toLoginIntent = Intent(this, LoginActivity::class.java)
+            startActivity(toLoginIntent)
+        }
+        val registerButton = findViewById<Button>(R.id.registerButton)
+        registerButton.setOnClickListener {
+            val toRegisterIntent = Intent(this, RegisterActivity::class.java)
+            startActivity(toRegisterIntent)
+        }
+
+        val token: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(TOKEN_KEY, null)
+
+        Log.i(TAG, token ?: "No token")
+
+
         fusedLocationClient = LocationServices.
             getFusedLocationProviderClient(this)
         getLocation()
@@ -49,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                         } else location.apply {
                             // Handle location object
                             println(location.toString())
-                            Log.e("LOG", location.toString())
+                            Log.e(TAG, location.toString())
                         }
                     })
         }
