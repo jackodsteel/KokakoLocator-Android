@@ -11,6 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import java.net.SocketTimeoutException
 
 const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
 //const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
@@ -61,11 +62,12 @@ class GenericWebHandler<T>(
             if (errorBody != null) {
                 val errorResponse = errorConverter.convert(errorBody).also { errorBody.close() }
                 val message = errorResponse?.message?.replace("; ", " and ")
-                    ?: "Unknown error with no body: ${response.code()}, message: ${response.message()}"
+                    ?: "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
                 Log.w(TAG, "Error: $message")
                 onError(message)
             } else {
-                val message = "Unknown error with no body: ${response.code()}, message: ${response.message()}"
+                val message =
+                    "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
                 Log.w(TAG, message)
                 onError(message)
             }
@@ -74,7 +76,10 @@ class GenericWebHandler<T>(
 
     override fun onFailure(call: Call<T>, t: Throwable) {
         Log.e(TAG, "Unknown error when sending request", t)
-        onError("Unknown error when sending request: ${t.localizedMessage}; ${t.stackTrace}")
+        if (t is SocketTimeoutException) {
+            onError("The connection to the server timed out!") //TODO use string var
+        }
+        onError("Unknown error when sending request: ${t.localizedMessage}; ${t.stackTrace}") //TODO use string var
     }
 }
 
