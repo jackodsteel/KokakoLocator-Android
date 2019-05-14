@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: 'kotlin-kapt'
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -24,6 +26,7 @@ android {
         targetCompatibility = "8"
         sourceCompatibility = "8"
     }
+    buildToolsVersion = '28.0.3'
 }
 
 dependencies {
@@ -35,15 +38,23 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.annotation:annotation:1.0.2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
-    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.1'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
     implementation 'com.squareup.retrofit2:retrofit:2.5.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.5.0'
     implementation 'com.squareup.moshi:moshi:1.8.0'
+    kapt 'com.squareup.moshi:moshi-kotlin-codegen:1.8.0'
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.google.android.gms:play-services-location:11.8.0'
     implementation 'com.google.android.gms:play-services-maps:11.8.0'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

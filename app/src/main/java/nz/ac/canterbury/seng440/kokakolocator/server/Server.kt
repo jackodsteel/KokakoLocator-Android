@@ -1,7 +1,10 @@
 package nz.ac.canterbury.seng440.kokakolocator.server
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
+import com.squareup.moshi.JsonClass
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
+import nz.ac.canterbury.seng440.kokakolocator.util.responseBodyConverter
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -23,14 +26,15 @@ interface ICacophonyServer {
 
 object CacophonyServer : ICacophonyServer {
 
-    private val retrofit = Retrofit.Builder()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(CACOPHONY_ROOT_URL)
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
 
     private val cacophonyService = retrofit.create(CacophonyService::class.java)
 
-    private val errorConverter = retrofit.responseBodyConverter<ErrorResponse>(ErrorResponse::class.java, ErrorResponse::class.java.annotations)
+    private val errorConverter = retrofit.responseBodyConverter<ErrorResponse>()
 
     override fun login(username: String, password: String, onSuccess: (LoginResponseBody) -> Unit, onError: (String) -> Unit) {
         val call = cacophonyService.login(LoginRequestBody(username, password))
@@ -83,28 +87,34 @@ class GenericWebHandler<T>(
     }
 }
 
+@JsonClass(generateAdapter = true)
 data class ErrorResponse(
     val errorType: String?,
     val messages: List<String>?,
     val message: String?
 )
 
+@JsonClass(generateAdapter = true)
 data class LoginRequestBody(
     val nameOrEmail: String,
     val password: String
 )
+
+@JsonClass(generateAdapter = true)
 data class LoginResponseBody(
     val token: String
 )
 
+@JsonClass(generateAdapter = true)
 data class RegisterRequestBody(
     val username: String,
     val email: String,
     val password: String
 )
 
+@JsonClass(generateAdapter = true)
 data class RegisterResponseBody(
-    val token: String?,
+    val token: String,
     val userData: Any?,
     val messages: List<String>?
 )
