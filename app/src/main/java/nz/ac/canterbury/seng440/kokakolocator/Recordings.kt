@@ -3,7 +3,6 @@ package nz.ac.canterbury.seng440.kokakolocator
 import android.app.Activity
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_main.*
 import androidx.recyclerview.widget.RecyclerView
 
 class Recordings : Activity() {
@@ -30,7 +29,6 @@ class Recordings : Activity() {
             layoutManager = viewManager
 
             adapter = viewAdapter
-
         }
     }
 }

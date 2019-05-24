@@ -15,6 +15,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import nz.ac.canterbury.seng440.kokakolocator.database.Recording
+import nz.ac.canterbury.seng440.kokakolocator.database.database
 import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.ui.login.LoginActivity
@@ -70,6 +74,11 @@ class MainActivity : AppCompatActivity() {
                 {
                     Log.i(TAG, it.toString())
                     Toast.makeText(this, "Successful upload!", Toast.LENGTH_LONG).show()
+                    GlobalScope.launch {
+                        database().recordingDao()
+                            .insert(Recording(fileName, "0.000,9.999", "2018-05-24:23-17-00"))
+                        Log.i(TAG, database().recordingDao().getAll().joinToString())
+                    }
                 },
                 {
                     Log.w(TAG, "Had error when uploading: $it")
