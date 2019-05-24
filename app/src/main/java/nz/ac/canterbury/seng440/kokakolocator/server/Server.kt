@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng440.kokakolocator.server
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonClass
+import com.squareup.moshi.JsonDataException
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.responseBodyConverter
 import okhttp3.ResponseBody
@@ -13,6 +14,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.POST
 import java.net.SocketTimeoutException
 
@@ -21,6 +23,10 @@ const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
 
 interface ICacophonyServer {
     fun login(username: String, password: String, onSuccess: (LoginResponseBody) -> Unit, onError: (String) -> Unit)
+
+    /**
+     * Register the user, also create them a default group and device to use
+     */
     fun register(username: String, email: String, password: String, onSuccess: (RegisterResponseBody) -> Unit, onError: (String) -> Unit)
 }
 
@@ -42,8 +48,25 @@ object CacophonyServer : ICacophonyServer {
     }
 
     override fun register(username: String, email: String, password: String, onSuccess: (RegisterResponseBody) -> Unit, onError: (String) -> Unit) {
-        val call = cacophonyService.register(RegisterRequestBody(username, email, password))
-        call.enqueue(GenericWebHandler<RegisterResponseBody>(onSuccess, onError, errorConverter))
+        val defaultGroupName = "${username}_default"
+        val defaultDeviceName = "${username}_default_device"
+        val registerUserCall = cacophonyService.register(RegisterRequestBody(username, email, password))
+        registerUserCall.enqueue(GenericWebHandler<RegisterResponseBody>({ registerResponse ->
+            val registerDefaultGroupCall =
+                cacophonyService.registerGroup(registerResponse.token, RegisterGroupRequestBody(defaultGroupName))
+            registerDefaultGroupCall.enqueue(GenericWebHandler<RegisterGroupResponseBody>({
+                val registerDefaultDeviceCall = cacophonyService.registerDevice(
+                    registerResponse.token,
+                    RegisterDeviceRequestBody(defaultDeviceName, password, defaultGroupName)
+                )
+                registerDefaultDeviceCall.enqueue(GenericWebHandler<RegisterDeviceResponseBody>({
+                    onSuccess.invoke(
+                        registerResponse
+                    )
+                }, onError, errorConverter))
+            }, onError, errorConverter))
+        }, onError, errorConverter))
+
     }
 
 }
@@ -64,7 +87,16 @@ class GenericWebHandler<T>(
         } else {
             val errorBody = response.errorBody()
             if (errorBody != null) {
-                val errorResponse = errorConverter.convert(errorBody).also { errorBody.close() }
+                val errorResponse = try {
+                    errorConverter.convert(errorBody).also { errorBody.close() }
+                } catch (e: JsonDataException) {
+                    val message =
+                        "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
+                    Log.w(TAG, message)
+                    onError(message)
+                    return
+                }
+                Log.w(TAG, errorResponse?.message)
                 val message = errorResponse?.message?.replace("; ", " and ")
                     ?: "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
                 Log.w(TAG, "Error: $message")
@@ -90,7 +122,7 @@ class GenericWebHandler<T>(
 @JsonClass(generateAdapter = true)
 data class ErrorResponse(
     val errorType: String?,
-    val messages: List<String>?,
+    val messages: List<String> = listOf(),
     val message: String?
 )
 
@@ -99,7 +131,6 @@ data class LoginRequestBody(
     val nameOrEmail: String,
     val password: String
 )
-
 @JsonClass(generateAdapter = true)
 data class LoginResponseBody(
     val token: String
@@ -111,12 +142,34 @@ data class RegisterRequestBody(
     val email: String,
     val password: String
 )
-
 @JsonClass(generateAdapter = true)
 data class RegisterResponseBody(
     val token: String,
     val userData: Any?,
-    val messages: List<String>?
+    val messages: List<String> = listOf()
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterDeviceRequestBody(
+    val devicename: String,
+    val password: String,
+    val group: String
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterDeviceResponseBody(
+    val token: String,
+    val messages: List<String> = listOf()
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterGroupRequestBody(
+    val groupname: String
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterGroupResponseBody(
+    val messages: List<String> = listOf()
 )
 
 interface CacophonyService {
@@ -126,6 +179,12 @@ interface CacophonyService {
 
     @POST("/api/v1/users")
     fun register(@Body body: RegisterRequestBody): Call<RegisterResponseBody>
+
+    @POST("/api/v1/devices")
+    fun registerDevice(@Header("Authorization") auth: String, @Body body: RegisterDeviceRequestBody): Call<RegisterDeviceResponseBody>
+
+    @POST("/api/v1/groups")
+    fun registerGroup(@Header("Authorization") auth: String, @Body body: RegisterGroupRequestBody): Call<RegisterGroupResponseBody>
 
 }
 
