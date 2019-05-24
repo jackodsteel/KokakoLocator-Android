@@ -11,12 +11,15 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
+import nz.ac.canterbury.seng440.kokakolocator.DEVICE_NAME_KEY
+import nz.ac.canterbury.seng440.kokakolocator.GROUP_NAME_KEY
 import nz.ac.canterbury.seng440.kokakolocator.MainActivity
 import nz.ac.canterbury.seng440.kokakolocator.PREFS_KEY
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.TOKEN_KEY
+import nz.ac.canterbury.seng440.kokakolocator.USERNAME_KEY
 import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
-import nz.ac.canterbury.seng440.kokakolocator.server.RegisterResponseBody
+import nz.ac.canterbury.seng440.kokakolocator.server.SuccessfulRegistrationData
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -65,9 +68,12 @@ class RegisterActivity : AppCompatActivity() {
         )
     }
 
-    private fun onRegisterSuccess(response: RegisterResponseBody) {
+    private fun onRegisterSuccess(response: SuccessfulRegistrationData) {
         getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).edit {
             putString(TOKEN_KEY, response.token)
+            putString(USERNAME_KEY, response.username)
+            putString(GROUP_NAME_KEY, response.groupName)
+            putString(DEVICE_NAME_KEY, response.deviceName)
         }
         val welcome = getString(R.string.welcome)
         Toast.makeText(

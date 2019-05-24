@@ -3,6 +3,7 @@ package nz.ac.canterbury.seng440.kokakolocator.server
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonClass
+import com.squareup.moshi.JsonDataException
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.responseBodyConverter
 import okhttp3.MediaType
@@ -20,6 +21,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import java.io.File
 import java.net.SocketTimeoutException
 
@@ -28,9 +30,21 @@ const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
 
 interface ICacophonyServer {
     fun login(username: String, password: String, onSuccess: (LoginResponseBody) -> Unit, onError: (String) -> Unit)
-    fun register(username: String, email: String, password: String, onSuccess: (RegisterResponseBody) -> Unit, onError: (String) -> Unit)
+
+    /**
+     * Register the user, also create them a default group and device to use
+     */
+    fun register(
+        username: String,
+        email: String,
+        password: String,
+        onSuccess: (SuccessfulRegistrationData) -> Unit,
+        onError: (String) -> Unit
+    )
+
     fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFile: File,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
@@ -39,6 +53,7 @@ interface ICacophonyServer {
 
     fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFileName: String,
         audioData: ByteArray,
         metadata: UploadAudioRequestMetadata,
@@ -64,13 +79,42 @@ object CacophonyServer : ICacophonyServer {
         call.enqueue(GenericWebHandler<LoginResponseBody>(onSuccess, onError, errorConverter))
     }
 
-    override fun register(username: String, email: String, password: String, onSuccess: (RegisterResponseBody) -> Unit, onError: (String) -> Unit) {
-        val call = cacophonyService.register(RegisterRequestBody(username, email, password))
-        call.enqueue(GenericWebHandler<RegisterResponseBody>(onSuccess, onError, errorConverter))
+    override fun register(
+        username: String,
+        email: String,
+        password: String,
+        onSuccess: (SuccessfulRegistrationData) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val defaultGroupName = "${username}_default"
+        val defaultDeviceName = "${username}_default_device"
+        val registerUserCall = cacophonyService.register(RegisterRequestBody(username, email, password))
+        registerUserCall.enqueue(GenericWebHandler<RegisterResponseBody>({ registerResponse ->
+            val registerDefaultGroupCall =
+                cacophonyService.registerGroup(registerResponse.token, RegisterGroupRequestBody(defaultGroupName))
+            registerDefaultGroupCall.enqueue(GenericWebHandler<RegisterGroupResponseBody>({
+                val registerDefaultDeviceCall = cacophonyService.registerDevice(
+                    registerResponse.token,
+                    RegisterDeviceRequestBody(defaultDeviceName, password, defaultGroupName)
+                )
+                registerDefaultDeviceCall.enqueue(GenericWebHandler<RegisterDeviceResponseBody>({
+                    onSuccess.invoke(
+                        SuccessfulRegistrationData(
+                            registerResponse.token,
+                            username,
+                            defaultGroupName,
+                            defaultDeviceName
+                        )
+                    )
+                }, onError, errorConverter))
+            }, onError, errorConverter))
+        }, onError, errorConverter))
+
     }
 
     override fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFile: File,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
@@ -81,12 +125,13 @@ object CacophonyServer : ICacophonyServer {
             audioFile.name,
             RequestBody.create(MediaType.parse("image/*"), audioFile)
         )
-        val call = cacophonyService.uploadAudioRecording(token, filePart, metadata)
+        val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
         call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
     }
 
     override fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFileName: String,
         audioData: ByteArray,
         metadata: UploadAudioRequestMetadata,
@@ -98,7 +143,7 @@ object CacophonyServer : ICacophonyServer {
             audioFileName,
             RequestBody.create(MediaType.parse("image/*"), audioData)
         )
-        val call = cacophonyService.uploadAudioRecording(token, filePart, metadata)
+        val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
         call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
     }
 
@@ -120,7 +165,15 @@ class GenericWebHandler<T>(
         } else {
             val errorBody = response.errorBody()
             if (errorBody != null) {
-                val errorResponse = errorConverter.convert(errorBody).also { errorBody.close() }
+                val errorResponse = try {
+                    errorConverter.convert(errorBody).also { errorBody.close() }
+                } catch (e: JsonDataException) {
+                    val message =
+                        "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
+                    Log.w(TAG, message)
+                    onError(message)
+                    return
+                }
                 val message = errorResponse?.message?.replace("; ", " and ")
                     ?: "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
                 Log.w(TAG, "Error: $message")
@@ -173,6 +226,34 @@ data class RegisterResponseBody(
     val messages: List<String> = listOf()
 )
 
+data class SuccessfulRegistrationData(
+    val token: String,
+    val username: String,
+    val groupName: String,
+    val deviceName: String
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterDeviceRequestBody(
+    val devicename: String,
+    val password: String,
+    val group: String
+)
+@JsonClass(generateAdapter = true)
+data class RegisterDeviceResponseBody(
+    val token: String,
+    val messages: List<String> = listOf()
+)
+
+@JsonClass(generateAdapter = true)
+data class RegisterGroupRequestBody(
+    val groupname: String
+)
+@JsonClass(generateAdapter = true)
+data class RegisterGroupResponseBody(
+    val messages: List<String> = listOf()
+)
+
 @JsonClass(generateAdapter = true)
 data class UploadAudioRequestMetadata(
     val type: String = "audio",
@@ -186,7 +267,6 @@ data class UploadAudioRequestMetadata(
     val additionalMetadata: List<String>? = null,
     val comment: String? = null
 )
-
 @JsonClass(generateAdapter = true)
 data class UploadAudioResponseBody(
     val recordingId: String,
@@ -201,12 +281,18 @@ interface CacophonyService {
     @POST("/api/v1/users")
     fun register(@Body body: RegisterRequestBody): Call<RegisterResponseBody>
 
+    @POST("/api/v1/devices")
+    fun registerDevice(@Header("Authorization") auth: String, @Body body: RegisterDeviceRequestBody): Call<RegisterDeviceResponseBody>
+
+    @POST("/api/v1/groups")
+    fun registerGroup(@Header("Authorization") auth: String, @Body body: RegisterGroupRequestBody): Call<RegisterGroupResponseBody>
+
     @Multipart
-    @POST("/api/v1/recordings/testdev")
+    @POST("/api/v1/recordings/{deviceName}")
     fun uploadAudioRecording(
         @Header("Authorization") token: String,
+        @Path(value = "deviceName", encoded = true) deviceName: String,
         @Part file: MultipartBody.Part,
         @Part("data") data: UploadAudioRequestMetadata
     ): Call<UploadAudioResponseBody>
-
 }
