@@ -21,6 +21,7 @@ import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import java.io.File
 import java.net.SocketTimeoutException
 
@@ -33,10 +34,17 @@ interface ICacophonyServer {
     /**
      * Register the user, also create them a default group and device to use
      */
-    fun register(username: String, email: String, password: String, onSuccess: (RegisterResponseBody) -> Unit, onError: (String) -> Unit)
+    fun register(
+        username: String,
+        email: String,
+        password: String,
+        onSuccess: (SuccessfulRegistrationData) -> Unit,
+        onError: (String) -> Unit
+    )
 
     fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFile: File,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
@@ -45,6 +53,7 @@ interface ICacophonyServer {
 
     fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFileName: String,
         audioData: ByteArray,
         metadata: UploadAudioRequestMetadata,
@@ -70,7 +79,13 @@ object CacophonyServer : ICacophonyServer {
         call.enqueue(GenericWebHandler<LoginResponseBody>(onSuccess, onError, errorConverter))
     }
 
-    override fun register(username: String, email: String, password: String, onSuccess: (RegisterResponseBody) -> Unit, onError: (String) -> Unit) {
+    override fun register(
+        username: String,
+        email: String,
+        password: String,
+        onSuccess: (SuccessfulRegistrationData) -> Unit,
+        onError: (String) -> Unit
+    ) {
         val defaultGroupName = "${username}_default"
         val defaultDeviceName = "${username}_default_device"
         val registerUserCall = cacophonyService.register(RegisterRequestBody(username, email, password))
@@ -84,7 +99,12 @@ object CacophonyServer : ICacophonyServer {
                 )
                 registerDefaultDeviceCall.enqueue(GenericWebHandler<RegisterDeviceResponseBody>({
                     onSuccess.invoke(
-                        registerResponse
+                        SuccessfulRegistrationData(
+                            registerResponse.token,
+                            username,
+                            defaultGroupName,
+                            defaultDeviceName
+                        )
                     )
                 }, onError, errorConverter))
             }, onError, errorConverter))
@@ -94,6 +114,7 @@ object CacophonyServer : ICacophonyServer {
 
     override fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFile: File,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
@@ -104,12 +125,13 @@ object CacophonyServer : ICacophonyServer {
             audioFile.name,
             RequestBody.create(MediaType.parse("image/*"), audioFile)
         )
-        val call = cacophonyService.uploadAudioRecording(token, filePart, metadata)
+        val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
         call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
     }
 
     override fun uploadRecording(
         token: String,
+        deviceName: String,
         audioFileName: String,
         audioData: ByteArray,
         metadata: UploadAudioRequestMetadata,
@@ -121,7 +143,7 @@ object CacophonyServer : ICacophonyServer {
             audioFileName,
             RequestBody.create(MediaType.parse("image/*"), audioData)
         )
-        val call = cacophonyService.uploadAudioRecording(token, filePart, metadata)
+        val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
         call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
     }
 
@@ -152,7 +174,6 @@ class GenericWebHandler<T>(
                     onError(message)
                     return
                 }
-                Log.w(TAG, errorResponse?.message)
                 val message = errorResponse?.message?.replace("; ", " and ")
                     ?: "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
                 Log.w(TAG, "Error: $message")
@@ -203,6 +224,13 @@ data class RegisterResponseBody(
     val token: String,
     val userData: Any?,
     val messages: List<String> = listOf()
+)
+
+data class SuccessfulRegistrationData(
+    val token: String,
+    val username: String,
+    val groupName: String,
+    val deviceName: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -260,12 +288,11 @@ interface CacophonyService {
     fun registerGroup(@Header("Authorization") auth: String, @Body body: RegisterGroupRequestBody): Call<RegisterGroupResponseBody>
 
     @Multipart
-    @POST("/api/v1/recordings/testdev")
+    @POST("/api/v1/recordings/{deviceName}")
     fun uploadAudioRecording(
         @Header("Authorization") token: String,
+        @Path(value = "deviceName", encoded = true) deviceName: String,
         @Part file: MultipartBody.Part,
         @Part("data") data: UploadAudioRequestMetadata
     ): Call<UploadAudioResponseBody>
-}
-
 }

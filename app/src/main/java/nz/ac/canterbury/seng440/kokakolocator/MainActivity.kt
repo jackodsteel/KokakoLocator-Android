@@ -23,6 +23,9 @@ import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 
 const val PREFS_KEY = "PREFS"
 const val TOKEN_KEY = "TOKEN"
+const val USERNAME_KEY = "USERNAME"
+const val GROUP_NAME_KEY = "GROUP_NAME"
+const val DEVICE_NAME_KEY = "DEVICE_NAME"
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,11 +47,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         val token: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(TOKEN_KEY, null)
+        val deviceName: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(DEVICE_NAME_KEY, null)
 
 
         val uploadButton = findViewById<Button>(R.id.uploadButton)
         uploadButton.setOnClickListener {
-            if (token == null) {
+            if (token == null || deviceName == null) {
                 Toast.makeText(this, "Must login", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
@@ -59,11 +63,18 @@ class MainActivity : AppCompatActivity() {
 
             CacophonyServer.uploadRecording(
                 token,
+                deviceName,
                 fileName,
                 file,
                 metadata,
-                { Log.e("TEST", it.toString()) },
-                { Log.e("TEST", it) })
+                {
+                    Log.i(TAG, it.toString())
+                    Toast.makeText(this, "Successful upload!", Toast.LENGTH_LONG).show()
+                },
+                {
+                    Log.w(TAG, "Had error when uploading: $it")
+                    Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                })
         }
 
 
