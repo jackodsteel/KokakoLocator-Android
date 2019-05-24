@@ -8,12 +8,15 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
+import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.ui.login.LoginActivity
 import nz.ac.canterbury.seng440.kokakolocator.ui.login.RegisterActivity
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
@@ -41,6 +44,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         val token: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(TOKEN_KEY, null)
+
+
+        val uploadButton = findViewById<Button>(R.id.uploadButton)
+        uploadButton.setOnClickListener {
+            if (token == null) {
+                Toast.makeText(this, "Must login", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            val file = resources.openRawResource(R.raw.test_recording_m4).readBytes()
+            val fileName = "test_recording_m4.m4v"
+            val metadata = UploadAudioRequestMetadata()
+
+            CacophonyServer.uploadRecording(
+                token,
+                fileName,
+                file,
+                metadata,
+                { Log.e("TEST", it.toString()) },
+                { Log.e("TEST", it) })
+        }
+
+
 
         Log.i(TAG, token ?: "No token")
 
