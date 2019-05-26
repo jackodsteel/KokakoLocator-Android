@@ -1,9 +1,10 @@
-package nz.ac.canterbury.seng440.kokakolocator
+package nz.ac.canterbury.seng440.kokakolocator.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import nz.ac.canterbury.seng440.kokakolocator.R
 
 class RecordingsAdapter(private val Dataset: Array<String>) :
     RecyclerView.Adapter<RecordingsAdapter.ViewHolder>() {

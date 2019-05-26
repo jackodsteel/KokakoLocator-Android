@@ -1,7 +1,6 @@
-package nz.ac.canterbury.seng440.kokakolocator.ui.login
+package nz.ac.canterbury.seng440.kokakolocator.view
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -11,12 +10,10 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
-import nz.ac.canterbury.seng440.kokakolocator.MainActivity
-import nz.ac.canterbury.seng440.kokakolocator.PREFS_KEY
 import nz.ac.canterbury.seng440.kokakolocator.R
-import nz.ac.canterbury.seng440.kokakolocator.TOKEN_KEY
 import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.LoginResponseBody
+import nz.ac.canterbury.seng440.kokakolocator.util.goTo
 
 class LoginActivity : AppCompatActivity() {
 
@@ -72,8 +69,7 @@ class LoginActivity : AppCompatActivity() {
             welcome,
             Toast.LENGTH_LONG
         ).show()
-        val toMainIntent = Intent(this, MainActivity::class.java)
-        startActivity(toMainIntent)
+        goTo(MainActivity::class)
     }
 
     private fun showLoginFailed(errorString: String) {
