@@ -4,15 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import org.w3c.dom.Text
 
-class RecordingsAdapter(private val Dataset: Array<String>):
-    RecyclerView.Adapter<RecordingsAdapter.ViewHolder>(){
+class RecordingsAdapter(private val Dataset: Array<String>) :
+    RecyclerView.Adapter<RecordingsAdapter.ViewHolder>() {
     class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val textView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.recordings_row,parent,false) as TextView
+            .inflate(R.layout.recordings_row, parent, false) as TextView
 
         return ViewHolder(textView)
 

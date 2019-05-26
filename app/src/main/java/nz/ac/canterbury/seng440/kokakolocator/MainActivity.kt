@@ -91,51 +91,40 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, token ?: "No token")
 
 
-        fusedLocationClient = LocationServices.
-            getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         getLocation()
     }
 
-    fun getLocation(){
-        if (checkPermission(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            fusedLocationClient?.lastLocation?.
-                addOnSuccessListener(this,
-                    {location : Location? ->
-                        // Got last known location. In some rare
-                        // situations this can be null.
-                        if(location == null) {
-                            // TODO, handle it
-                        } else location.apply {
-                            // Handle location object
-                            println(location.toString())
-                            Log.e(TAG, location.toString())
-                        }
-                    })
+    fun getLocation() {
+        if (checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener(this) { location: Location? ->
+                // Got last known location. In some rare
+                // situations this can be null.
+                if (location == null) {
+                    // TODO, handle it
+                } else location.apply {
+                    // Handle location object
+                    println(location.toString())
+                    Log.e(TAG, location.toString())
+                }
+            }
         }
 
     }
 
     val PERMISSION_ID = 42
-    private fun checkPermission(vararg perm:String) : Boolean {
+    private fun checkPermission(vararg perm: String): Boolean {
         val havePermissions = perm.toList().all {
-            ContextCompat.checkSelfPermission(this,it) ==
+            ContextCompat.checkSelfPermission(this, it) ==
                     PackageManager.PERMISSION_GRANTED
         }
         if (!havePermissions) {
-            if(perm.toList().any {
-                    ActivityCompat.
-                        shouldShowRequestPermissionRationale(this, it)}
-            ) {
+            if (perm.toList().any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }) {
                 val dialog = AlertDialog.Builder(this)
                     .setTitle("Permission")
                     .setMessage("Permission needed!")
-                    .setPositiveButton("OK", {id, v ->
-                        ActivityCompat.requestPermissions(
-                            this, perm, PERMISSION_ID)
-                    })
-                    .setNegativeButton("No", {id, v -> })
+                    .setPositiveButton("OK") { _, _ -> ActivityCompat.requestPermissions(this, perm, PERMISSION_ID) }
+                    .setNegativeButton("No") { _, _ -> }
                     .create()
                 dialog.show()
             } else {
@@ -145,8 +134,6 @@ class MainActivity : AppCompatActivity() {
         }
         return true
     }
-
-
 
 
 }

@@ -74,7 +74,12 @@ object CacophonyServer : ICacophonyServer {
 
     private val errorConverter = retrofit.responseBodyConverter<ErrorResponse>()
 
-    override fun login(username: String, password: String, onSuccess: (LoginResponseBody) -> Unit, onError: (String) -> Unit) {
+    override fun login(
+        username: String,
+        password: String,
+        onSuccess: (LoginResponseBody) -> Unit,
+        onError: (String) -> Unit
+    ) {
         val call = cacophonyService.login(LoginRequestBody(username, password))
         call.enqueue(GenericWebHandler<LoginResponseBody>(onSuccess, onError, errorConverter))
     }
@@ -208,6 +213,7 @@ data class LoginRequestBody(
     val nameOrEmail: String,
     val password: String
 )
+
 @JsonClass(generateAdapter = true)
 data class LoginResponseBody(
     val token: String
@@ -219,6 +225,7 @@ data class RegisterRequestBody(
     val email: String,
     val password: String
 )
+
 @JsonClass(generateAdapter = true)
 data class RegisterResponseBody(
     val token: String,
@@ -239,6 +246,7 @@ data class RegisterDeviceRequestBody(
     val password: String,
     val group: String
 )
+
 @JsonClass(generateAdapter = true)
 data class RegisterDeviceResponseBody(
     val token: String,
@@ -249,6 +257,7 @@ data class RegisterDeviceResponseBody(
 data class RegisterGroupRequestBody(
     val groupname: String
 )
+
 @JsonClass(generateAdapter = true)
 data class RegisterGroupResponseBody(
     val messages: List<String> = listOf()
@@ -267,6 +276,7 @@ data class UploadAudioRequestMetadata(
     val additionalMetadata: List<String>? = null,
     val comment: String? = null
 )
+
 @JsonClass(generateAdapter = true)
 data class UploadAudioResponseBody(
     val recordingId: String,
