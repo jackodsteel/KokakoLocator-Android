@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -16,12 +15,7 @@ import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
-
-const val PREFS_KEY = "PREFS"
-const val TOKEN_KEY = "TOKEN"
-const val USERNAME_KEY = "USERNAME"
-const val GROUP_NAME_KEY = "GROUP_NAME"
-const val DEVICE_NAME_KEY = "DEVICE_NAME"
+import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,19 +36,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isNotLoggedIn(): Boolean {
-        val prefs = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-        return !(with(prefs) { contains(TOKEN_KEY) && contains(DEVICE_NAME_KEY) })
+        val prefs = prefs()
+        return prefs.authToken == null || prefs.deviceName == null
     }
 
 
     private fun uploadAudioRecording() {
 
-        val token: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(
-            TOKEN_KEY, null
-        )
-        val deviceName: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(
-            DEVICE_NAME_KEY, null
-        )
+        val prefs = prefs()
+        val token = prefs.authToken
+        val deviceName = prefs.deviceName
 
         if (token == null || deviceName == null) {
             Log.i(TAG, "token: $token, deviceName: $deviceName")

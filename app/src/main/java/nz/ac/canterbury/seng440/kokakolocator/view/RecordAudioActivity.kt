@@ -1,15 +1,12 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.media.MediaRecorder
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -26,12 +23,10 @@ import nz.ac.canterbury.seng440.kokakolocator.database.database
 import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
+import nz.ac.canterbury.seng440.kokakolocator.util.prefs
+import java.io.File
 import java.io.IOException
 import java.util.*
-
-import java.io.BufferedReader
-import java.io.File
-import java.io.InputStreamReader
 
 
 class RecordAudioActivity : AppCompatActivity() {
@@ -127,12 +122,8 @@ class RecordAudioActivity : AppCompatActivity() {
 
     private fun uploadAudioRecording(fileName:String) {
 
-        val token: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(
-            TOKEN_KEY, null
-        )
-        val deviceName: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(
-            DEVICE_NAME_KEY, null
-        )
+        val token = prefs().authToken
+        val deviceName = prefs().deviceName
 
         if (token == null || deviceName == null) {
             Log.i(TAG, "token: $token, deviceName: $deviceName")

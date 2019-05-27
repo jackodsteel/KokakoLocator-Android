@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -9,11 +8,11 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.LoginResponseBody
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
+import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
 class LoginActivity : AppCompatActivity() {
 
@@ -60,13 +59,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginSuccess(response: LoginResponseBody) {
-        getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).edit {
-            putString(TOKEN_KEY, response.token)
+        val prefs = prefs()
+
+        prefs.authToken = response.token
             val usernameStr = username.text.toString()
-            putString(USERNAME_KEY, usernameStr)
-            putString(GROUP_NAME_KEY, "${usernameStr}_default")
-            putString(DEVICE_NAME_KEY, "${usernameStr}_default_device")
-        }
+        prefs.username = usernameStr
+        prefs.groupName = "${usernameStr}_default"
+        prefs.deviceName = "${usernameStr}_default_device"
         val welcome = getString(R.string.welcome)
         Toast.makeText(
             applicationContext,
