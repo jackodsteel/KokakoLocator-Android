@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import nz.ac.canterbury.seng440.kokakolocator.R
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 
         val file = resources.openRawResource(R.raw.test_recording_m4).readBytes()
         val fileName = "test_recording_m4.m4v"
-        val metadata = UploadAudioRequestMetadata()
+        val metadata = UploadAudioRequestMetadata(duration = 100L, location = LatLng(-37.805294, 175.306775))
 
         CacophonyServer.uploadRecording(
             token,
@@ -74,9 +75,19 @@ class MainActivity : AppCompatActivity() {
                 Log.i(TAG, it.toString())
                 Toast.makeText(this, "Successful upload!", Toast.LENGTH_LONG).show()
                 GlobalScope.launch {
-                    database().recordingDao()
-                        .insert(Recording(fileName, "0.000,9.999", metadata.recordingDataTime))
-                    Log.i(TAG, database().recordingDao().getAll().joinToString())
+                    val id = database().recordingDao()
+                        .insert(
+                            Recording(
+                                fileName,
+                                LatLng(0.0, 0.0),
+                                metadata.recordingDateTime,
+                                serverId = it.recordingId.toLong()
+                            )
+                        )
+//                    Log.i(TAG, database().recordingDao().getAll().joinToString())
+//                    database().recordingDao().getById(id)?.file?.let {f ->
+//                        Log.i(TAG, "${f.name}, ${f.absoluteFile}")
+//                    }
                 }
             },
             {

@@ -6,8 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Recording::class], version = 2, exportSchema = false)
-@TypeConverters(DateConverter::class)
+@Database(entities = [Recording::class], version = 5, exportSchema = false)
+@TypeConverters(DateConverter::class, LatLngConverter::class)
 abstract class RecordingDatabase : RoomDatabase() {
     abstract fun recordingDao(): RecordingDao
 
@@ -22,6 +22,7 @@ abstract class RecordingDatabase : RoomDatabase() {
                 synchronized(RecordingDatabase::class) {
                     INSTANCE =
                         Room.databaseBuilder(context.applicationContext, RecordingDatabase::class.java, DATABASE_NAME)
+                            .fallbackToDestructiveMigration()
                             .build()
                 }
             }

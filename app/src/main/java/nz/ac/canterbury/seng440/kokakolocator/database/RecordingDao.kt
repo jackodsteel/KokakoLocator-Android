@@ -21,4 +21,7 @@ interface RecordingDao {
     @Query("SELECT * FROM ${Recording.TABLE_NAME}")
     fun getAll(): List<Recording>
 
+    @Query("SELECT * FROM ${Recording.TABLE_NAME} WHERE id=:id")
+    fun getById(id: Long): Recording?
+
 }

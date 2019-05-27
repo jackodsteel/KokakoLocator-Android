@@ -71,6 +71,7 @@ object CacophonyServer : ICacophonyServer {
 
     private val moshi: Moshi = Moshi.Builder()
         .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
+        .add(LatLngAdapter())
         .build()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -139,6 +140,7 @@ object CacophonyServer : ICacophonyServer {
             audioFile.name,
             RequestBody.create(MediaType.parse("image/*"), audioFile)
         )
+        Log.i(TAG, moshi.adapter<UploadAudioRequestMetadata>(UploadAudioRequestMetadata::class.java).toJson(metadata))
         val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
         call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
     }
@@ -157,6 +159,7 @@ object CacophonyServer : ICacophonyServer {
             audioFileName,
             RequestBody.create(MediaType.parse("image/*"), audioData)
         )
+        Log.i(TAG, moshi.adapter<UploadAudioRequestMetadata>(UploadAudioRequestMetadata::class.java).toJson(metadata))
         val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
         call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
     }

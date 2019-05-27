@@ -16,6 +16,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import nz.ac.canterbury.seng440.kokakolocator.R
@@ -142,10 +143,19 @@ class RecordAudioActivity : AppCompatActivity() {
             metadata,
             {
                 Log.i(TAG, it.toString())
+                Log.i(TAG, it.recordingId)
+                Log.i(TAG, "${it.recordingId.toLong()}")
                 Toast.makeText(this, "Successful upload!", Toast.LENGTH_LONG).show()
                 GlobalScope.launch {
                     database().recordingDao()
-                        .insert(Recording(fileName, "0.000,9.999", Calendar.getInstance().time))
+                        .insert(
+                            Recording(
+                                fileName,
+                                LatLng(0.0, 0.0),
+                                Calendar.getInstance().time,
+                                serverId = it.recordingId.toLong()
+                            )
+                        )
                     Log.i(TAG, database().recordingDao().getAll().joinToString())
                 }
             },
