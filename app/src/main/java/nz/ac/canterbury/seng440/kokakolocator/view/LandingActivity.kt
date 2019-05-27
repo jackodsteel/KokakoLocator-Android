@@ -10,7 +10,7 @@ class LandingActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_landing)
 
         findViewById<Button>(R.id.loginButton).setOnClickListener { goTo(LoginActivity::class) }
         findViewById<Button>(R.id.registerButton).setOnClickListener { goTo(RegisterActivity::class) }

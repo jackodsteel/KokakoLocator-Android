@@ -62,6 +62,10 @@ class LoginActivity : AppCompatActivity() {
     private fun onLoginSuccess(response: LoginResponseBody) {
         getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).edit {
             putString(TOKEN_KEY, response.token)
+            val usernameStr = username.text.toString()
+            putString(USERNAME_KEY, usernameStr)
+            putString(GROUP_NAME_KEY, "${usernameStr}_default")
+            putString(DEVICE_NAME_KEY, "${usernameStr}_default_device")
         }
         val welcome = getString(R.string.welcome)
         Toast.makeText(

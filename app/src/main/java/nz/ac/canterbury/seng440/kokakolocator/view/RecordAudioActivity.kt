@@ -25,6 +25,7 @@ import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import java.io.IOException
+import java.util.*
 
 
 class RecordAudioActivity : AppCompatActivity() {
@@ -144,7 +145,7 @@ class RecordAudioActivity : AppCompatActivity() {
                 Toast.makeText(this, "Successful upload!", Toast.LENGTH_LONG).show()
                 GlobalScope.launch {
                     database().recordingDao()
-                        .insert(Recording(fileName, "0.000,9.999", "2018-05-24:23-17-00"))
+                        .insert(Recording(fileName, "0.000,9.999", Calendar.getInstance().time))
                     Log.i(TAG, database().recordingDao().getAll().joinToString())
                 }
             },

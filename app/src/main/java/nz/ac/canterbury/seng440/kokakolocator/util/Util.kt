@@ -15,6 +15,6 @@ inline fun <reified T> Retrofit.responseBodyConverter(): retrofit2.Converter<okh
     return responseBodyConverter(T::class.java, T::class.java.annotations)
 }
 
-inline fun <T : Activity> Activity.goTo(clazz: KClass<T>) {
+fun <T : Activity> Activity.goTo(clazz: KClass<T>) {
     startActivity(Intent(this, clazz.java))
 }

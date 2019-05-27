@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.responseBodyConverter
 import okhttp3.MediaType
@@ -18,6 +20,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 import java.net.SocketTimeoutException
+import java.util.*
 
 const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
 //const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
@@ -66,10 +69,14 @@ interface ICacophonyServer {
 
 object CacophonyServer : ICacophonyServer {
 
+    private val moshi: Moshi = Moshi.Builder()
+        .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
+        .build()
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(CACOPHONY_ROOT_URL)
-        .addConverterFactory(MoshiConverterFactory.create())
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
         .build()
 
     private val cacophonyService = retrofit.create(CacophonyApi::class.java)
@@ -199,11 +206,12 @@ class GenericWebHandler<T>(
     }
 
     override fun onFailure(call: Call<T>, t: Throwable) {
-        Log.e(TAG, "Unknown error when sending request", t)
         if (t is SocketTimeoutException) {
             onError("The connection to the server timed out!") //TODO use string var
+        } else {
+            Log.e(TAG, "Unknown error when sending request", t)
+            onError("Unknown error when sending request: ${t.localizedMessage}; ${t.stackTrace}") //TODO use string var
         }
-        onError("Unknown error when sending request: ${t.localizedMessage}; ${t.stackTrace}") //TODO use string var
     }
 }
 
