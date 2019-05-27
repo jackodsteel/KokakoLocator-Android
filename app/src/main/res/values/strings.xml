@@ -16,4 +16,9 @@
     <string name="title_activity_landing">Login or Register</string>
     <string name="title_record_audio">Record Audio</string>
     <string name="title_main">Kokako Locator</string>
+    <string name="title_activity_preferences">Preferences</string>
+
+    <string name="prefs_recording_settings_header">Recording Settings</string>
+    <string name="prefs_enable_auto_upload">Enable auto upload</string>
+    <string name="prefs_max_record_length">Maximum recording length</string>
 </resources>
