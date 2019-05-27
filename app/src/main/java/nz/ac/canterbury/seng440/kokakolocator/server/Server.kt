@@ -16,20 +16,22 @@ import retrofit2.Converter
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.Header
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Path
 import java.io.File
 import java.net.SocketTimeoutException
 
 const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
 //const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
 
+/**
+ * Wraps the CacophonyApi in a more usable interface for internal use
+ */
 interface ICacophonyServer {
-    fun login(username: String, password: String, onSuccess: (LoginResponseBody) -> Unit, onError: (String) -> Unit)
+    fun login(
+        username: String,
+        password: String,
+        onSuccess: (LoginResponseBody) -> Unit,
+        onError: (String) -> Unit
+    )
 
     /**
      * Register the user, also create them a default group and device to use
@@ -70,7 +72,7 @@ object CacophonyServer : ICacophonyServer {
         .addConverterFactory(MoshiConverterFactory.create())
         .build()
 
-    private val cacophonyService = retrofit.create(CacophonyService::class.java)
+    private val cacophonyService = retrofit.create(CacophonyApi::class.java)
 
     private val errorConverter = retrofit.responseBodyConverter<ErrorResponse>()
 
@@ -154,6 +156,10 @@ object CacophonyServer : ICacophonyServer {
 
 }
 
+/**
+ * Wraps a Retrofit Callback and instead either calls the onSuccess function with the expected response,
+ * or calls onError with a nicely formatted string.
+ */
 class GenericWebHandler<T>(
     private val onSuccess: (T) -> Unit,
     private val onError: (String) -> Unit,
@@ -207,102 +213,3 @@ data class ErrorResponse(
     val messages: List<String> = listOf(),
     val message: String?
 )
-
-@JsonClass(generateAdapter = true)
-data class LoginRequestBody(
-    val nameOrEmail: String,
-    val password: String
-)
-
-@JsonClass(generateAdapter = true)
-data class LoginResponseBody(
-    val token: String
-)
-
-@JsonClass(generateAdapter = true)
-data class RegisterRequestBody(
-    val username: String,
-    val email: String,
-    val password: String
-)
-
-@JsonClass(generateAdapter = true)
-data class RegisterResponseBody(
-    val token: String,
-    val userData: Any?,
-    val messages: List<String> = listOf()
-)
-
-data class SuccessfulRegistrationData(
-    val token: String,
-    val username: String,
-    val groupName: String,
-    val deviceName: String
-)
-
-@JsonClass(generateAdapter = true)
-data class RegisterDeviceRequestBody(
-    val devicename: String,
-    val password: String,
-    val group: String
-)
-
-@JsonClass(generateAdapter = true)
-data class RegisterDeviceResponseBody(
-    val token: String,
-    val messages: List<String> = listOf()
-)
-
-@JsonClass(generateAdapter = true)
-data class RegisterGroupRequestBody(
-    val groupname: String
-)
-
-@JsonClass(generateAdapter = true)
-data class RegisterGroupResponseBody(
-    val messages: List<String> = listOf()
-)
-
-@JsonClass(generateAdapter = true)
-data class UploadAudioRequestMetadata(
-    val type: String = "audio",
-    val duration: String? = null,
-    val recordingDataTime: String? = null,
-    val location: String? = null,
-    val version: String? = null,
-    val batteryCharging: Boolean? = null,
-    val batteryLevel: String? = null,
-    val airplaneModeOn: Boolean? = null,
-    val additionalMetadata: List<String>? = null,
-    val comment: String? = null
-)
-
-@JsonClass(generateAdapter = true)
-data class UploadAudioResponseBody(
-    val recordingId: String,
-    val messages: List<String> = listOf()
-)
-
-interface CacophonyService {
-
-    @POST("/authenticate_user")
-    fun login(@Body body: LoginRequestBody): Call<LoginResponseBody>
-
-    @POST("/api/v1/users")
-    fun register(@Body body: RegisterRequestBody): Call<RegisterResponseBody>
-
-    @POST("/api/v1/devices")
-    fun registerDevice(@Header("Authorization") auth: String, @Body body: RegisterDeviceRequestBody): Call<RegisterDeviceResponseBody>
-
-    @POST("/api/v1/groups")
-    fun registerGroup(@Header("Authorization") auth: String, @Body body: RegisterGroupRequestBody): Call<RegisterGroupResponseBody>
-
-    @Multipart
-    @POST("/api/v1/recordings/{deviceName}")
-    fun uploadAudioRecording(
-        @Header("Authorization") token: String,
-        @Path(value = "deviceName", encoded = true) deviceName: String,
-        @Part file: MultipartBody.Part,
-        @Part("data") data: UploadAudioRequestMetadata
-    ): Call<UploadAudioResponseBody>
-}
