@@ -33,10 +33,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.goToRecordButton).setOnClickListener { goTo(RecordAudioActivity::class) }
-        findViewById<Button>(R.id.goToRecordButton).setOnClickListener { goTo(LandingActivity::class) } //TODO remove this when not debugging
+        //findViewById<Button>(R.id.goToRecordButton).setOnClickListener { goTo(LandingActivity::class) } //TODO remove this when not debugging
         findViewById<Button>(R.id.goToRecordingsButton).setOnClickListener { goTo(ViewRecordingsActivity::class) }
         findViewById<Button>(R.id.goToPrefsButton).setOnClickListener { goTo(PreferencesActivity::class) }
-        findViewById<Button>(R.id.goToPrefsButton).setOnClickListener { uploadAudioRecording() } // TODO remove this when not debugging
+        //findViewById<Button>(R.id.goToPrefsButton).setOnClickListener { uploadAudioRecording() } // TODO remove this when not debugging
 
     }
 
