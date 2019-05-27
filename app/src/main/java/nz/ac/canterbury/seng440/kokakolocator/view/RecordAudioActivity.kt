@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.media.MediaRecorder
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -28,10 +29,16 @@ import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import java.io.IOException
 import java.util.*
 
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+
 
 class RecordAudioActivity : AppCompatActivity() {
     private var output: String? = null
     private var isRecording: Boolean = false
+    private var fileName:String = ""
+    private var recordingLocation:Location? = null
 
     private var mediaRecorder: MediaRecorder? = null
 
@@ -41,9 +48,10 @@ class RecordAudioActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_record_audio)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        getLocation()
+
         val imageButton = findViewById<ImageButton>(R.id.microphone)
         mediaRecorder = MediaRecorder()
+        getLocation()
 
         imageButton.setOnClickListener {
             if (isRecording) {
@@ -64,9 +72,11 @@ class RecordAudioActivity : AppCompatActivity() {
         mediaRecorder?.setAudioSource(MediaRecorder.AudioSource.DEFAULT)
         mediaRecorder?.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder?.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        val fileName = Calendar.getInstance().time.toString()
+        fileName = Calendar.getInstance().time.toString()
         output = filesDir.absolutePath + "/$fileName"
         mediaRecorder?.setOutputFile(output)
+
+
 
 
     }
@@ -108,13 +118,14 @@ class RecordAudioActivity : AppCompatActivity() {
         if (isRecording) {
             mediaRecorder?.stop()
             isRecording = false
+            uploadAudioRecording(fileName)
         } else {
             Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show()
         }
 
     }
 
-    private fun uploadAudioRecording() {
+    private fun uploadAudioRecording(fileName:String) {
 
         val token: String? = getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).getString(
             TOKEN_KEY, null
@@ -128,14 +139,17 @@ class RecordAudioActivity : AppCompatActivity() {
             return //TODO handle dis
         }
 
-        val file = resources.openRawResource(R.raw.test_recording_m4).readBytes()
-        val fileName = "test_recording_m4.m4v"
-        val metadata = UploadAudioRequestMetadata()
+
+        val LatLng = LatLng(recordingLocation!!.latitude,recordingLocation!!.longitude)
+
+        val metadata = UploadAudioRequestMetadata(location=LatLng)
+
+
+        val file = File(output)
 
         CacophonyServer.uploadRecording(
             token,
             deviceName,
-            fileName,
             file,
             metadata,
             {
@@ -148,7 +162,7 @@ class RecordAudioActivity : AppCompatActivity() {
                         .insert(
                             Recording(
                                 fileName,
-                                LatLng(0.0, 0.0),
+                                LatLng,
                                 Calendar.getInstance().time,
                                 serverId = it.recordingId.toLong()
                             )
@@ -172,8 +186,7 @@ class RecordAudioActivity : AppCompatActivity() {
                     // TODO, handle it
                 } else location.apply {
                     // Handle location object
-                    println(location.toString())
-                    Log.e(TAG, location.toString())
+                    recordingLocation = location
                 }
             }
         }
