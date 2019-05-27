@@ -16,4 +16,5 @@
     <string name="title_activity_landing">Login or Register</string>
     <string name="title_record_audio">Record Audio</string>
     <string name="title_main">Kokako Locator</string>
+    <string name="recordings_title">Recordings</string>
 </resources>

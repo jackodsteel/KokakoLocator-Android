@@ -19,7 +19,7 @@ class Recording(
     }
 
     override fun toString(): String {
-        return "Recording(fileName='$fileName', latLng=$latLng, dateTime=$dateTime, serverId=$serverId, id=$id)"
+        return "Date & Time:$dateTime|Location:(${latLng.latitude},${latLng.longitude}))"
     }
 
     val file: File
