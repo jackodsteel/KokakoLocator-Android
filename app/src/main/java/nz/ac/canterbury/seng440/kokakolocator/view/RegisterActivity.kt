@@ -10,8 +10,8 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import nz.ac.canterbury.seng440.kokakolocator.R
-import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.SuccessfulRegistrationData
+import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
 class RegisterActivity : AppCompatActivity() {
@@ -52,13 +52,12 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun register() {
-        CacophonyServer.register(
+        cacophonyServer().register(
             username.text.toString(),
             email.text.toString(),
             password.text.toString(),
             this::onRegisterSuccess,
-            this::showLoginFailed,
-            this
+            this::showLoginFailed
         )
     }
 

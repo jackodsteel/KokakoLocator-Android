@@ -9,8 +9,8 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import nz.ac.canterbury.seng440.kokakolocator.R
-import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.LoginResponseBody
+import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
@@ -50,12 +50,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun login() {
-        CacophonyServer.login(
+        cacophonyServer().login(
             username.text.toString(),
             password.text.toString(),
             this::onLoginSuccess,
-            this::showLoginFailed,
-            this
+            this::showLoginFailed
         )
     }
 

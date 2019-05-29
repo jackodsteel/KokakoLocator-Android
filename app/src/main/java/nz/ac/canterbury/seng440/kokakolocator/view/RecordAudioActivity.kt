@@ -20,9 +20,9 @@ import kotlinx.coroutines.launch
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.database.Recording
 import nz.ac.canterbury.seng440.kokakolocator.database.database
-import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioResponseBody
+import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
@@ -139,7 +139,7 @@ class RecordAudioActivity : AppCompatActivity() {
 
         val file = File(absoluteOutputFileName)
 
-        CacophonyServer.uploadRecording(
+        cacophonyServer().uploadRecording(
             token,
             deviceName,
             file,
@@ -154,8 +154,7 @@ class RecordAudioActivity : AppCompatActivity() {
             {
                 Log.w(TAG, "Had error when uploading: $it")
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-            },
-            this
+            }
         )
     }
 

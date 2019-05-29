@@ -30,13 +30,12 @@ const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
 /**
  * Wraps the CacophonyApi in a more usable interface for internal use
  */
-interface ICacophonyServer {
+interface CacophonyServer {
     fun login(
         username: String,
         password: String,
         onSuccess: (LoginResponseBody) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     )
 
     /**
@@ -47,8 +46,7 @@ interface ICacophonyServer {
         email: String,
         password: String,
         onSuccess: (SuccessfulRegistrationData) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     )
 
     fun uploadRecording(
@@ -57,8 +55,7 @@ interface ICacophonyServer {
         audioFile: File,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     )
 
     fun uploadRecording(
@@ -68,12 +65,30 @@ interface ICacophonyServer {
         audioData: ByteArray,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     )
+
+    companion object {
+
+        @Volatile
+        private var INSTANCE: CacophonyServer? = null
+
+        fun getServer(context: Context): CacophonyServer {
+            if (INSTANCE == null) {
+                synchronized(CacophonyServer::class) {
+                    INSTANCE = CacophonyServerImpl(context)
+                }
+            }
+            return INSTANCE!!
+        }
+    }
 }
 
-object CacophonyServer : ICacophonyServer {
+fun Context.cacophonyServer(): CacophonyServer {
+    return CacophonyServer.getServer(this)
+}
+
+class CacophonyServerImpl(private val context: Context) : CacophonyServer {
 
     private val moshi: Moshi = Moshi.Builder()
         .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
@@ -94,8 +109,7 @@ object CacophonyServer : ICacophonyServer {
         username: String,
         password: String,
         onSuccess: (LoginResponseBody) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     ) {
         val call = cacophonyService.login(LoginRequestBody(username, password))
         call.enqueue(GenericWebHandler<LoginResponseBody>(onSuccess, onError, errorConverter, context))
@@ -106,8 +120,7 @@ object CacophonyServer : ICacophonyServer {
         email: String,
         password: String,
         onSuccess: (SuccessfulRegistrationData) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     ) {
         val defaultGroupName = "${username}_default"
         val defaultDeviceName = "${username}_default_device"
@@ -141,8 +154,7 @@ object CacophonyServer : ICacophonyServer {
         audioFile: File,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     ) {
         val filePart = MultipartBody.Part.createFormData(
             "file",
@@ -161,8 +173,7 @@ object CacophonyServer : ICacophonyServer {
         audioData: ByteArray,
         metadata: UploadAudioRequestMetadata,
         onSuccess: (UploadAudioResponseBody) -> Unit,
-        onError: (String) -> Unit,
-        context: Context
+        onError: (String) -> Unit
     ) {
         val filePart = MultipartBody.Part.createFormData(
             "file",
