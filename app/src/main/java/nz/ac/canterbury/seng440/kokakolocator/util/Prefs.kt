@@ -21,12 +21,12 @@ class Prefs(context: Context) {
         private const val DEVICE_NAME_KEY = "DEVICE_NAME"
     }
 
-    var maxRecordLength: Int
+    var maxRecordLengthSeconds: Int
         get() {
-            return getInt(R.string.key_max_record_length, 0)
+            return getInt(R.string.key_max_record_length_seconds, -1)
         }
         set(value) {
-            setInt(R.string.key_max_record_length, value)
+            setInt(R.string.key_max_record_length_seconds, value)
         }
 
     var autoUploadRecordings: Boolean

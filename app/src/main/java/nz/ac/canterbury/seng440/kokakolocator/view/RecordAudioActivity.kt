@@ -36,6 +36,8 @@ class RecordAudioActivity : AppCompatActivity() {
         private const val REQUIRED_PERMISSIONS_REQUEST_CODE = 9872
         private const val LOCATION_PERMISSIONS_REQUEST_CODE = 2987
 
+        private const val AUDIO_FILE_EXTENSION = "mp4"
+
         private val REQUIRED_PERMISSIONS = listOf(
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -61,7 +63,8 @@ class RecordAudioActivity : AppCompatActivity() {
         setContentView(R.layout.activity_record_audio)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        absoluteOutputFileName = "${filesDir.absolutePath}/${Calendar.getInstance().time}"
+        absoluteOutputFileName = "${filesDir.absolutePath}/${Calendar.getInstance().time}.$AUDIO_FILE_EXTENSION"
+        Log.i(TAG, absoluteOutputFileName)
         imageButton = findViewById(R.id.microphone)
 
         getLocation()
@@ -72,11 +75,24 @@ class RecordAudioActivity : AppCompatActivity() {
     }
 
     private fun initializeRecorder() {
+        absoluteOutputFileName = "${filesDir.absolutePath}/${Calendar.getInstance().time}.$AUDIO_FILE_EXTENSION"
+        mediaRecorder.setOutputFile(absoluteOutputFileName)
+
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT)
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-        absoluteOutputFileName = "${filesDir.absolutePath}/${Calendar.getInstance().time}"
-        mediaRecorder.setOutputFile(absoluteOutputFileName)
+
+        recordingLocation?.let { mediaRecorder.setLocation(it.latitude.toFloat(), it.longitude.toFloat()) }
+
+        val maxDurationSeconds = prefs().maxRecordLengthSeconds
+        if (maxDurationSeconds != -1) {
+            mediaRecorder.setMaxDuration(maxDurationSeconds * 1000)
+            mediaRecorder.setOnInfoListener { _, what, _ ->
+                if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+                    stopRecording()
+                }
+            }
+        }
     }
 
     private fun startRecording() {
@@ -95,14 +111,10 @@ class RecordAudioActivity : AppCompatActivity() {
     }
 
     private fun stopRecording() {
+        mediaRecorder.stop()
         imageButton.setImageResource(R.drawable.microphone)
-        if (isRecording) {
-            mediaRecorder.stop()
-            isRecording = false
-            uploadAudioRecording()
-        } else {
-            Toast.makeText(this, "You are not recording right now!", Toast.LENGTH_SHORT).show() //TODO string var
-        }
+        isRecording = false
+        uploadAudioRecording()
     }
 
     private fun uploadAudioRecording() {

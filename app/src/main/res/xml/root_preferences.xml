@@ -22,7 +22,7 @@
         <SeekBarPreference
             android:defaultValue="60"
             android:max="100"
-            app:key="@string/key_max_record_length"
+            app:key="@string/key_max_record_length_seconds"
             app:showSeekBarValue="true"
             app:title="@string/prefs_max_record_length" />
 
