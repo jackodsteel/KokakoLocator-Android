@@ -1,21 +1,19 @@
 <resources>
     <string name="app_name" translatable="false">KokakoLocator</string>
     <string name="app_title" translatable="false">Kokako Locator</string>
-    <string name="login_text" translatable="false">Login</string>
+    <string name="login_text">Login</string>
     <string name="register_text">Register</string>
     <string name="title_activity_login">Sign in</string>
     <string name="title_activity_register">Register</string>
     <string name="prompt_email_or_username">Username or email</string>
-    <string name="prompt_username" translatable="false">Username</string>
+    <string name="prompt_username">Username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in" translatable="false">Sign in</string>
-    <string name="action_register" translatable="false">Register</string>
-    <string name="action_sign_in_short" translatable="false">Sign in</string>
+    <string name="sign_in">Sign in</string>
+    <string name="action_register">Register</string>
     <string name="welcome">Welcome!</string>
     <string name="title_activity_landing">Login or Register</string>
     <string name="title_record_audio">Record Audio</string>
-    <string name="title_main">Kokako Locator</string>
     <string name="recordings_title">Recordings</string>
     <string name="title_activity_preferences">Preferences</string>
 
@@ -26,15 +24,22 @@
     <string name="prefs_enable_auto_upload">Enable auto upload</string>
     <string name="prefs_max_record_length">Maximum recording length</string>
     <string name="recording_started">Recording started!</string>
-    <string name="generic_error" translatable="false">Something went wrong!</string>
-    <string name="error_login_details" translatable="false">There was an issue with your login info. Please log in again.</string>
+    <string name="generic_error">Something went wrong!</string>
+    <string name="error_login_details">There was an issue with your login info. Please log in again.</string>
     <string name="upload_success">Successful upload!</string>
-    <string name="permissions_required_title" translatable="false">Cannot run without permissions</string>
-    <string name="permissions_required_body" translatable="false">These permissions are required for the app to function correctly.</string>
+    <string name="permissions_required_title">Cannot run without permissions</string>
+    <string name="permissions_required_body">These permissions are required for the app to function correctly.</string>
     <string name="permissions_required_yes">Add permissions</string>
-    <string name="no" translatable="false">No</string>
-    <string name="permissions_location_title" translatable="false">Location permissions</string>
-    <string name="permissions_location_body" translatable="false">Your location will not be recorded when making a recording without these permissions.</string>
-    <string name="and" translatable="false">and</string>
+    <string name="no">No</string>
+    <string name="permissions_location_title">Location permissions</string>
+    <string name="permissions_location_body">Your location will not be recorded when making a recording without these permissions.</string>
+    <string name="and">and</string>
     <string name="server_timeout">The connection to the server timed out!</string>
+    <string name="img_description">Image of a Kokako</string>
+    <string name="record">Record</string>
+    <string name="recordings">Recordings</string>
+    <string name="preferences">Preferences</string>
+    <string name="logout">Logout</string>
+    <string name="submit">Submit</string>
+    <string name="change_password">Change Password</string>
 </resources>

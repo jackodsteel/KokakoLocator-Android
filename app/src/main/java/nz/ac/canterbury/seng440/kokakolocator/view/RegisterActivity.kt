@@ -62,12 +62,12 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun onRegisterSuccess(response: SuccessfulRegistrationData) {
-        val prefs = prefs()
-        prefs.authToken = response.token
-        prefs.username = response.username
-        prefs.groupName = response.groupName
-        prefs.deviceName = response.deviceName
-
+        prefs().apply {
+            authToken = response.token
+            username = response.username
+            groupName = response.groupName
+            deviceName = response.deviceName
+        }
         val welcome = getString(R.string.welcome)
         Toast.makeText(
             applicationContext,

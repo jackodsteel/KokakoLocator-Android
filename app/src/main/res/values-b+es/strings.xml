@@ -1,21 +1,16 @@
 <resources>
     <string name="app_name" translatable="false">KokakoLocator</string>
-    <string name="app_title" translatable="false">Kokako Locator</string>
-    <string name="login_text" translatable="false">Login</string>
+    <string name="app_title">Localizador Kokako</string>
     <string name="register_text">Registro</string>
     <string name="title_activity_login">Registrarse</string>
     <string name="title_activity_register">Registro</string>
     <string name="prompt_email_or_username">Nombre de usuario o correo electrónico</string>
-    <string name="prompt_username" translatable="false">Username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Contraseña</string>
-    <string name="action_sign_in" translatable="false">Sign in</string>
-    <string name="action_register" translatable="false">Register</string>
-    <string name="action_sign_in_short" translatable="false">Sign in</string>
+    <string name="action_register">Register</string>
     <string name="welcome">¡Bienvenido!</string>
     <string name="title_activity_landing">Iniciar sesión o Registrarse</string>
     <string name="title_record_audio">Grabar audio</string>
-    <string name="title_main">Localizador Kokako</string>
     <string name="recordings_title">Grabaciones</string>
     <string name="title_activity_preferences">Preferencias</string>
     <string name="unknown_error_no_body">"Error desconocido sin cuerpo, tenía estado:% 1 $ d, mensaje:% 2 $ s"</string>
@@ -25,15 +20,7 @@
     <string name="prefs_enable_auto_upload">Habilitar carga automática</string>
     <string name="prefs_max_record_length">Longitud máxima de grabación</string>
     <string name="recording_started">Grabación iniciada!</string>
-    <string name="generic_error" translatable="false">Something went wrong!</string>
-    <string name="error_login_details" translatable="false">There was an issue with your login info. Please log in again.</string>
     <string name="upload_success">Subida exitosa!</string>
-    <string name="permissions_required_title" translatable="false">Cannot run without permissions</string>
-    <string name="permissions_required_body" translatable="false">These permissions are required for the app to function correctly.</string>
     <string name="permissions_required_yes">Agregar permisos</string>
-    <string name="no" translatable="false">No</string>
-    <string name="permissions_location_title" translatable="false">Location permissions</string>
-    <string name="permissions_location_body" translatable="false">Your location will not be recorded when making a recording without these permissions.</string>
-    <string name="and" translatable="false">and</string>
     <string name="server_timeout">¡La conexión al servidor expiró!</string>
 </resources>

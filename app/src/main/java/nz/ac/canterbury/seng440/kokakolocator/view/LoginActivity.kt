@@ -59,13 +59,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onLoginSuccess(response: LoginResponseBody) {
-        val prefs = prefs()
-
-        prefs.authToken = response.token
-            val usernameStr = username.text.toString()
-        prefs.username = usernameStr
-        prefs.groupName = "${usernameStr}_default"
-        prefs.deviceName = "${usernameStr}_default_device"
+        val usernameStr = username.text.toString()
+        prefs().apply {
+            authToken = response.token
+            username = usernameStr
+            groupName = "${usernameStr}_default"
+            deviceName = "${usernameStr}_default_device"
+        }
         val welcome = getString(R.string.welcome)
         Toast.makeText(
             applicationContext,

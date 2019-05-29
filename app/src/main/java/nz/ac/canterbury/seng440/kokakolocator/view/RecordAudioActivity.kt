@@ -74,6 +74,11 @@ class RecordAudioActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (isRecording) stopRecording()
+    }
+
     private fun initializeRecorder() {
         absoluteOutputFileName = "${filesDir.absolutePath}/${Calendar.getInstance().time}.$AUDIO_FILE_EXTENSION"
         mediaRecorder.setOutputFile(absoluteOutputFileName)
