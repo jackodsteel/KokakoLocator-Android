@@ -1,5 +1,7 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
+import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +15,9 @@ import android.widget.AdapterView.OnItemClickListener
 import android.util.DisplayMetrics
 import android.view.Display
 import android.widget.Toast
+import android.media.AudioManager
+import java.io.FileInputStream
+import java.io.IOException
 
 
 class ViewRecordingsActivity : AppCompatActivity() {
@@ -44,7 +49,24 @@ class ViewRecordingsActivity : AppCompatActivity() {
 
 
     private fun recordItemClicked(record : Recording) {
-        Toast.makeText(this, "Clicked: ${record.toString()}", Toast.LENGTH_LONG).show()
+        val mediaPlayer = MediaPlayer()
+        var fis: FileInputStream? = null
+        try {
+            fis = FileInputStream(record.fileName)
+            mediaPlayer.setDataSource(fis.getFD())
+            mediaPlayer.prepare()
+            mediaPlayer.start()
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close()
+                } catch (ignore: IOException) {
+                }
+
+            }
+
+        }
+
     }
 
 }
