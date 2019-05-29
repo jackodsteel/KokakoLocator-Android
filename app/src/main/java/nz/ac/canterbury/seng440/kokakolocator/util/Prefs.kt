@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.preference.PreferenceManager
 import nz.ac.canterbury.seng440.kokakolocator.R
 
+/**
+ * This class provides an easy wrapper over the default shared preferences.
+ * Properties are provided that have custom getter/setters that interact with the sharedPrefs to persist the values
+ */
 class Prefs(context: Context) {
 
     private val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context)
@@ -23,6 +27,14 @@ class Prefs(context: Context) {
         }
         set(value) {
             setInt(R.string.key_max_record_length, value)
+        }
+
+    var autoUploadRecordings: Boolean
+        get() {
+            return getBoolean(R.string.key_enable_auto_upload, false)
+        }
+        set(value) {
+            setBoolean(R.string.key_enable_auto_upload, value)
         }
 
     var authToken: String?
@@ -57,39 +69,59 @@ class Prefs(context: Context) {
             setString(DEVICE_NAME_KEY, value)
         }
 
+    // Ints
 
-    fun setInt(key: Int, value: Int) {
+    private fun setInt(key: Int, value: Int) {
         setInt(res.getString(key), value)
     }
 
-    fun setInt(key: String, value: Int) {
+    private fun setInt(key: String, value: Int) {
         sharedPrefs.edit().putInt(key, value).apply()
     }
 
-    fun getInt(key: String, default: Int): Int {
+    private fun getInt(key: String, default: Int): Int {
         return sharedPrefs.getInt(key, default)
     }
 
-    fun getInt(stringKey: Int, default: Int): Int {
+    private fun getInt(stringKey: Int, default: Int): Int {
         return getInt(res.getString(stringKey), default)
     }
 
-    fun setString(key: Int, value: String?) {
+    // Booleans
+
+    private fun setBoolean(key: Int, value: Boolean) {
+        setBoolean(res.getString(key), value)
+    }
+
+    private fun setBoolean(key: String, value: Boolean) {
+        sharedPrefs.edit().putBoolean(key, value).apply()
+    }
+
+    private fun getBoolean(key: String, default: Boolean): Boolean {
+        return sharedPrefs.getBoolean(key, default)
+    }
+
+    private fun getBoolean(stringKey: Int, default: Boolean): Boolean {
+        return getBoolean(res.getString(stringKey), default)
+    }
+
+    // Strings
+
+    private fun setString(key: Int, value: String?) {
         setString(res.getString(key), value)
     }
 
-    fun setString(key: String, value: String?) {
+    private fun setString(key: String, value: String?) {
         sharedPrefs.edit().putString(key, value).apply()
     }
 
-    fun getString(key: String, default: String? = null): String? {
+    private fun getString(key: String, default: String? = null): String? {
         return sharedPrefs.getString(key, default)
     }
 
-    fun getString(stringKey: Int, default: String? = null): String? {
+    private fun getString(stringKey: Int, default: String? = null): String? {
         return getString(res.getString(stringKey), default)
     }
-
 
 }
 
