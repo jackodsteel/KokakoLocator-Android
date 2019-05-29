@@ -21,7 +21,6 @@ import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.database.Recording
 import nz.ac.canterbury.seng440.kokakolocator.database.database
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
-import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioResponseBody
 import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
@@ -114,10 +113,11 @@ class RecordAudioActivity : AppCompatActivity() {
         mediaRecorder.stop()
         imageButton.setImageResource(R.drawable.microphone)
         isRecording = false
-        uploadAudioRecording()
+        val recording = addRecordingToLocalDb()
+        uploadAudioRecording(recording)
     }
 
-    private fun uploadAudioRecording() {
+    private fun uploadAudioRecording(recording: Recording) {
         if (!prefs().autoUploadRecordings) return
 
         val token = prefs().authToken
@@ -145,11 +145,9 @@ class RecordAudioActivity : AppCompatActivity() {
             file,
             metadata,
             {
-                Log.i(TAG, it.toString())
-                Log.i(TAG, it.recordingId)
-                Log.i(TAG, "${it.recordingId.toLong()}")
+                Log.i(TAG, "Successfully uploaded recording: ${file.name}, server id: ${it.recordingId}")
                 Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_LONG).show()
-                addRecordingToLocalDb(it, latLng)
+                setServerRecordingId(recording, it.recordingId)
             },
             {
                 Log.w(TAG, "Had error when uploading: $it")
@@ -158,21 +156,29 @@ class RecordAudioActivity : AppCompatActivity() {
         )
     }
 
-    private fun addRecordingToLocalDb(uploadAudioResponseBody: UploadAudioResponseBody, latLng: LatLng?) {
+    private fun addRecordingToLocalDb(): Recording {
+        val latLng = recordingLocation.let { if (it != null) LatLng(it.latitude, it.longitude) else null }
+        val recording = Recording(
+            absoluteOutputFileName,
+            latLng,
+            Calendar.getInstance().time
+        )
+        // Note: this is a potential race condition as this must be added before the server upload completes
+        // otherwise the setServerRecordingId will freak out. Basically will never happen though so we'll just let it be
         GlobalScope.launch {
-            database().recordingDao().insert(
-                Recording(
-                    absoluteOutputFileName,
-                    latLng,
-                    Calendar.getInstance().time,
-                    serverId = uploadAudioResponseBody.recordingId.toLong()
-                )
-            )
+            database().recordingDao().insert(recording)
+        }
+        return recording
+    }
+
+    private fun setServerRecordingId(recording: Recording, serverId: Long) {
+        GlobalScope.launch {
+            recording.serverId = serverId
+            database().recordingDao().update(recording)
         }
     }
 
-
-    @SuppressLint("MissingPermission") // We do check them just not the way Android checks for
+    @SuppressLint("MissingPermission") // We do check them just not the way Android lint checks for
     private fun getLocation() {
         if (checkLocationPermissions()) {
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location: Location? ->
