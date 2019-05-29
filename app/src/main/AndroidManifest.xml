@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".view.PreferencesActivity"
-            android:label="@string/title_activity_preferences"></activity>
+            android:label="@string/title_activity_preferences" />
         <activity android:name=".view.ViewRecordingsActivity" />
         <activity
             android:name=".view.LandingActivity"
