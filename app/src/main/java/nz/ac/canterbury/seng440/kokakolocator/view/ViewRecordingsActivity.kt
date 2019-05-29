@@ -16,6 +16,8 @@ import android.util.DisplayMetrics
 import android.view.Display
 import android.widget.Toast
 import android.media.AudioManager
+import android.view.Menu
+import android.view.MenuItem
 import java.io.FileInputStream
 import java.io.IOException
 
@@ -46,6 +48,25 @@ class ViewRecordingsActivity : AppCompatActivity() {
 
     }
 
+    fun sort(){
+        recordingsList.reverse()
+        viewAdapter.notifyDataSetChanged()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_bar_recordings, menu)
+        return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.sort_arrows -> {
+            sort()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
+
 
 
     private fun recordItemClicked(record : Recording) {
@@ -56,6 +77,7 @@ class ViewRecordingsActivity : AppCompatActivity() {
             mediaPlayer.setDataSource(fis.getFD())
             mediaPlayer.prepare()
             mediaPlayer.start()
+            sort()
         } finally {
             if (fis != null) {
                 try {

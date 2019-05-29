@@ -1,6 +1,7 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

@@ -42,4 +42,5 @@
     <string name="logout">Cerrar sesión</string>
     <string name="submit">Enviar</string>
     <string name="change_password">Cambia la contraseña</string>
+    <string name="sort_arrows">flechas de clasificación</string>
 </resources>
