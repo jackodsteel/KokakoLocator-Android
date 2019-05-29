@@ -1,18 +1,22 @@
 <resources>
     <string name="app_name" translatable="false">KokakoLocator</string>
     <string name="app_title">Localizador Kokako</string>
+    <string name="login_text">Iniciar sesión</string>
     <string name="register_text">Registro</string>
     <string name="title_activity_login">Registrarse</string>
     <string name="title_activity_register">Registro</string>
     <string name="prompt_email_or_username">Nombre de usuario o correo electrónico</string>
+    <string name="prompt_username">Nombre de usuario</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Contraseña</string>
-    <string name="action_register">Register</string>
+    <string name="sign_in">Registrarse</string>
+    <string name="action_register">Registro</string>
     <string name="welcome">¡Bienvenido!</string>
     <string name="title_activity_landing">Iniciar sesión o Registrarse</string>
-    <string name="title_record_audio">Grabar audio</string>
+    <string name="title_record_audio">Record Audio</string>
     <string name="recordings_title">Grabaciones</string>
     <string name="title_activity_preferences">Preferencias</string>
+
     <string name="unknown_error_no_body">"Error desconocido sin cuerpo, tenía estado: %1$d, mensaje: %2$s"</string>
     <string name="unknown_error_exception">"Error desconocido al enviar la solicitud: %1$s"</string>
     <string name="successful_response_no_body">"Respuesta exitosa pero sin cuerpo, tenía estado: %1$d, mensaje: %2$s"</string>
@@ -20,7 +24,22 @@
     <string name="prefs_enable_auto_upload">Habilitar carga automática</string>
     <string name="prefs_max_record_length">Longitud máxima de grabación</string>
     <string name="recording_started">Grabación iniciada!</string>
+    <string name="generic_error">¡Algo salió mal!</string>
+    <string name="error_login_details">Hubo un problema con su información de inicio de sesión. Por favor inicie sesión de nuevo.</string>
     <string name="upload_success">Subida exitosa!</string>
+    <string name="permissions_required_title">No se puede ejecutar sin permisos</string>
+    <string name="permissions_required_body">Estos permisos son necesarios para que la aplicación funcione correctamente.</string>
     <string name="permissions_required_yes">Agregar permisos</string>
+    <string name="no">No</string>
+    <string name="permissions_location_title">Permisos de ubicación</string>
+    <string name="permissions_location_body">Su ubicación no se registrará cuando realice una grabación sin estos permisos.</string>
+    <string name="and">y</string>
     <string name="server_timeout">¡La conexión al servidor expiró!</string>
+    <string name="img_description">Imagen de un kokako</string>
+    <string name="record">Grabar</string>
+    <string name="recordings">Grabaciones</string>
+    <string name="preferences">Preferencias</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="submit">Enviar</string>
+    <string name="change_password">Cambia la contraseña</string>
 </resources>
