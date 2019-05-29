@@ -13,7 +13,7 @@
     <string name="action_register">Registro</string>
     <string name="welcome">¡Bienvenido!</string>
     <string name="title_activity_landing">Iniciar sesión o Registrarse</string>
-    <string name="title_record_audio">Record Audio</string>
+    <string name="title_record_audio">Grabar Audio</string>
     <string name="recordings_title">Grabaciones</string>
     <string name="title_activity_preferences">Preferencias</string>
 
