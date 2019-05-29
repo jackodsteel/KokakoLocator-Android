@@ -54,7 +54,8 @@ class LoginActivity : AppCompatActivity() {
             username.text.toString(),
             password.text.toString(),
             this::onLoginSuccess,
-            this::showLoginFailed
+            this::showLoginFailed,
+            this
         )
     }
 

@@ -57,7 +57,8 @@ class RegisterActivity : AppCompatActivity() {
             email.text.toString(),
             password.text.toString(),
             this::onRegisterSuccess,
-            this::showLoginFailed
+            this::showLoginFailed,
+            this
         )
     }
 

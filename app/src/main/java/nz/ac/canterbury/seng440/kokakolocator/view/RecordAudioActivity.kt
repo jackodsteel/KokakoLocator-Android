@@ -103,10 +103,10 @@ class RecordAudioActivity : AppCompatActivity() {
             mediaRecorder.start()
             isRecording = true
             imageButton.setImageResource(R.drawable.microphone_activated)
-            Toast.makeText(this, "Recording started!", Toast.LENGTH_SHORT).show() //TODO string var
+            Toast.makeText(this, getString(R.string.recording_started), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e(TAG, "Error when starting recording", e)
-            Toast.makeText(this, "Something went wrong! $e", Toast.LENGTH_LONG).show() //TODO string var
+            Toast.makeText(this, getString(R.string.generic_error) + e, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -125,12 +125,7 @@ class RecordAudioActivity : AppCompatActivity() {
 
         if (token == null || deviceName == null) {
             Log.e(TAG, "Wasn't logged in properly. Logging user out. token: $token, deviceName: $deviceName")
-            Toast.makeText(
-                this,
-                "There was an issue with your login info. Please log in again.", //TODO string var
-                Toast.LENGTH_LONG
-            ) //TODO string var
-                .show()
+            Toast.makeText(this, getString(R.string.error_login_details), Toast.LENGTH_LONG).show()
             goTo(LandingActivity::class)
             return
         }
@@ -153,13 +148,15 @@ class RecordAudioActivity : AppCompatActivity() {
                 Log.i(TAG, it.toString())
                 Log.i(TAG, it.recordingId)
                 Log.i(TAG, "${it.recordingId.toLong()}")
-                Toast.makeText(this, "Successful upload!", Toast.LENGTH_LONG).show() //TODO string var
+                Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_LONG).show()
                 addRecordingToLocalDb(it, latLng)
             },
             {
                 Log.w(TAG, "Had error when uploading: $it")
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-            })
+            },
+            this
+        )
     }
 
     private fun addRecordingToLocalDb(uploadAudioResponseBody: UploadAudioResponseBody, latLng: LatLng?) {
@@ -172,7 +169,6 @@ class RecordAudioActivity : AppCompatActivity() {
                     serverId = uploadAudioResponseBody.recordingId.toLong()
                 )
             )
-            Log.i(TAG, database().recordingDao().getAll().joinToString()) // TODO debug only, remove
         }
     }
 
@@ -194,10 +190,10 @@ class RecordAudioActivity : AppCompatActivity() {
                 when {
                     denied.isEmpty() -> startRecording()
                     else -> AlertDialog.Builder(this)
-                        .setTitle("Cannot run without permissions") //TODO string var
-                        .setMessage("These permissions are required for the app to function correctly.") //TODO string var
-                        .setPositiveButton("Add permissions") { _, _ -> checkRequiredPermissions() } //TODO string var
-                        .setNegativeButton("No") { _, _ -> } //TODO string var
+                        .setTitle(getString(R.string.permissions_required_title))
+                        .setMessage(getString(R.string.permissions_required_body))
+                        .setPositiveButton(getString(R.string.permissions_required_yes)) { _, _ -> checkRequiredPermissions() }
+                        .setNegativeButton(getString(R.string.no)) { _, _ -> }
                         .create()
                         .show()
                 }
@@ -206,10 +202,10 @@ class RecordAudioActivity : AppCompatActivity() {
                     denied.isEmpty() -> getLocation()
                     denied.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it.second) } ->
                         AlertDialog.Builder(this)
-                            .setTitle("Location permissions") //TODO string var
-                            .setMessage("Your location will not be recorded when making a recording without these permissions.") //TODO string var
-                            .setPositiveButton("Add permissions") { _, _ -> checkLocationPermissions() } //TODO string var
-                            .setNegativeButton("No") { _, _ -> } //TODO string var
+                            .setTitle(getString(R.string.permissions_location_title))
+                            .setMessage(getString(R.string.permissions_location_body))
+                            .setPositiveButton(getString(R.string.permissions_required_yes)) { _, _ -> checkLocationPermissions() }
+                            .setNegativeButton(getString(R.string.no)) { _, _ -> }
                             .create()
                             .show()
                 }
