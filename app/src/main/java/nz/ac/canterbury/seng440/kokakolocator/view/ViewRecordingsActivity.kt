@@ -28,11 +28,11 @@ class ViewRecordingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_recordings)
 
-        Thread({
+        Thread{
             recordingsList.clear()
             recordingsList.addAll(database().recordingDao().getAll())
             runOnUiThread { viewAdapter.notifyDataSetChanged() }
-        }).start()
+        }.start()
 
 
 
