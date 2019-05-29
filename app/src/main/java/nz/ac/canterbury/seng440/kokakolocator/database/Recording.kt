@@ -16,10 +16,10 @@ class Recording(
 ) {
     companion object {
         const val TABLE_NAME = "recordings"
-    }
+}
 
     override fun toString(): String {
-        return "Date & Time:$dateTime|Location:(${latLng.latitude},${latLng.longitude}))"
+        return "Date & Time:$dateTime|Location:(${latLng?.latitude},${latLng?.longitude}))"
     }
 
     val file: File
