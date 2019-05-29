@@ -13,9 +13,9 @@
     <string name="title_record_audio">Grabar audio</string>
     <string name="recordings_title">Grabaciones</string>
     <string name="title_activity_preferences">Preferencias</string>
-    <string name="unknown_error_no_body">"Error desconocido sin cuerpo, tenía estado:% 1 $ d, mensaje:% 2 $ s"</string>
-    <string name="unknown_error_exception">"Error desconocido al enviar la solicitud:% 1 $ s"</string>
-    <string name="successful_response_no_body">"Respuesta exitosa pero sin cuerpo, tenía estado:% 1 $ d, mensaje:% 2 $ s"</string>
+    <string name="unknown_error_no_body">"Error desconocido sin cuerpo, tenía estado: %1$d, mensaje: %2$s"</string>
+    <string name="unknown_error_exception">"Error desconocido al enviar la solicitud: %1$s"</string>
+    <string name="successful_response_no_body">"Respuesta exitosa pero sin cuerpo, tenía estado: %1$d, mensaje: %2$s"</string>
     <string name="prefs_recording_settings_header">Ajustes de grabación</string>
     <string name="prefs_enable_auto_upload">Habilitar carga automática</string>
     <string name="prefs_max_record_length">Longitud máxima de grabación</string>
