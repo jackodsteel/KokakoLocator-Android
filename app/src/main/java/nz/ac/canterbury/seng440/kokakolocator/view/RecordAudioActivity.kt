@@ -22,7 +22,6 @@ import nz.ac.canterbury.seng440.kokakolocator.database.Recording
 import nz.ac.canterbury.seng440.kokakolocator.database.database
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
-import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 import java.io.File
@@ -32,6 +31,8 @@ import java.util.*
 class RecordAudioActivity : AppCompatActivity() {
 
     companion object {
+        private const val TAG = "RecordAudioActivity"
+
         private const val REQUIRED_PERMISSIONS_REQUEST_CODE = 9872
         private const val LOCATION_PERMISSIONS_REQUEST_CODE = 2987
 
@@ -113,12 +114,15 @@ class RecordAudioActivity : AppCompatActivity() {
         mediaRecorder.stop()
         imageButton.setImageResource(R.drawable.microphone)
         isRecording = false
-        val recording = addRecordingToLocalDb()
-        uploadAudioRecording(recording)
+        GlobalScope.launch {
+            val recording = addRecordingToLocalDb()
+            uploadAudioRecording(recording)
+        }
     }
 
     private fun uploadAudioRecording(recording: Recording) {
         if (!prefs().autoUploadRecordings) return
+        Log.d(TAG, "Started uploading recording to server: ${recording.id}")
 
         val token = prefs().authToken
         val deviceName = prefs().deviceName
@@ -150,7 +154,7 @@ class RecordAudioActivity : AppCompatActivity() {
                 setServerRecordingId(recording, it.recordingId)
             },
             {
-                Log.w(TAG, "Had error when uploading: $it")
+                Log.w(TAG, "Had error when uploading recording ID: ${recording.id}, $it")
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
             }
         )
@@ -163,11 +167,10 @@ class RecordAudioActivity : AppCompatActivity() {
             latLng,
             Calendar.getInstance().time
         )
-        // Note: this is a potential race condition as this must be added before the server upload completes
-        // otherwise the setServerRecordingId will freak out. Basically will never happen though so we'll just let it be
-        GlobalScope.launch {
-            database().recordingDao().insert(recording)
-        }
+        Log.d(TAG, "Started adding recording to local DB: ${recording.fileName}")
+        val id = database().recordingDao().insert(recording)
+        Log.d(TAG, "Finished adding recording to local DB: ${recording.fileName}, id: $id")
+        recording.id = id
         return recording
     }
 
@@ -175,6 +178,8 @@ class RecordAudioActivity : AppCompatActivity() {
         GlobalScope.launch {
             recording.serverId = serverId
             database().recordingDao().update(recording)
+            Log.d(TAG, "Added serverId to recording: ${recording.id}")
+            Log.d(TAG, "Current state of DB: ${database().recordingDao().getAll()}")
         }
     }
 
