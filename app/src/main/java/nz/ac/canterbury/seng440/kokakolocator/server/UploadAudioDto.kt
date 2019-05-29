@@ -20,6 +20,6 @@ data class UploadAudioRequestMetadata(
 
 @JsonClass(generateAdapter = true)
 data class UploadAudioResponseBody(
-    val recordingId: String,
+    val recordingId: Long,
     val messages: List<String> = listOf()
 )

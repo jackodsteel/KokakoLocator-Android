@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="key_max_record_length">max_record_length</string>
+    <string name="key_max_record_length_seconds">max_record_length_seconds</string>
     <string name="key_enable_auto_upload">enable_auto_upload</string>
 
 </resources>

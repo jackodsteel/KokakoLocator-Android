@@ -1,11 +1,13 @@
 package nz.ac.canterbury.seng440.kokakolocator.server
 
+import android.content.Context
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
+import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.util.TAG
 import nz.ac.canterbury.seng440.kokakolocator.util.responseBodyConverter
 import okhttp3.MediaType
@@ -22,13 +24,13 @@ import java.io.File
 import java.net.SocketTimeoutException
 import java.util.*
 
-const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
-//const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
+//const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
+const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
 
 /**
  * Wraps the CacophonyApi in a more usable interface for internal use
  */
-interface ICacophonyServer {
+interface CacophonyServer {
     fun login(
         username: String,
         password: String,
@@ -65,9 +67,28 @@ interface ICacophonyServer {
         onSuccess: (UploadAudioResponseBody) -> Unit,
         onError: (String) -> Unit
     )
+
+    companion object {
+
+        @Volatile
+        private var INSTANCE: CacophonyServer? = null
+
+        fun getServer(context: Context): CacophonyServer {
+            if (INSTANCE == null) {
+                synchronized(CacophonyServer::class) {
+                    INSTANCE = CacophonyServerImpl(context)
+                }
+            }
+            return INSTANCE!!
+        }
+    }
 }
 
-object CacophonyServer : ICacophonyServer {
+fun Context.cacophonyServer(): CacophonyServer {
+    return CacophonyServer.getServer(this)
+}
+
+class CacophonyServerImpl(private val context: Context) : CacophonyServer {
 
     private val moshi: Moshi = Moshi.Builder()
         .add(Date::class.java, Rfc3339DateJsonAdapter().nullSafe())
@@ -91,7 +112,7 @@ object CacophonyServer : ICacophonyServer {
         onError: (String) -> Unit
     ) {
         val call = cacophonyService.login(LoginRequestBody(username, password))
-        call.enqueue(GenericWebHandler<LoginResponseBody>(onSuccess, onError, errorConverter))
+        call.enqueue(GenericWebHandler<LoginResponseBody>(onSuccess, onError, errorConverter, context))
     }
 
     override fun register(
@@ -121,9 +142,9 @@ object CacophonyServer : ICacophonyServer {
                             defaultDeviceName
                         )
                     )
-                }, onError, errorConverter))
-            }, onError, errorConverter))
-        }, onError, errorConverter))
+                }, onError, errorConverter, context))
+            }, onError, errorConverter, context))
+        }, onError, errorConverter, context))
 
     }
 
@@ -142,7 +163,7 @@ object CacophonyServer : ICacophonyServer {
         )
         Log.i(TAG, moshi.adapter<UploadAudioRequestMetadata>(UploadAudioRequestMetadata::class.java).toJson(metadata))
         val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
-        call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
+        call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter, context))
     }
 
     override fun uploadRecording(
@@ -161,7 +182,7 @@ object CacophonyServer : ICacophonyServer {
         )
         Log.i(TAG, moshi.adapter<UploadAudioRequestMetadata>(UploadAudioRequestMetadata::class.java).toJson(metadata))
         val call = cacophonyService.uploadAudioRecording(token, deviceName, filePart, metadata)
-        call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter))
+        call.enqueue(GenericWebHandler<UploadAudioResponseBody>(onSuccess, onError, errorConverter, context))
     }
 
 }
@@ -173,7 +194,8 @@ object CacophonyServer : ICacophonyServer {
 class GenericWebHandler<T>(
     private val onSuccess: (T) -> Unit,
     private val onError: (String) -> Unit,
-    private val errorConverter: Converter<ResponseBody, ErrorResponse>
+    private val errorConverter: Converter<ResponseBody, ErrorResponse>,
+    private val context: Context
 ) : Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
         if (response.isSuccessful) {
@@ -181,7 +203,7 @@ class GenericWebHandler<T>(
             if (responseBody != null) {
                 onSuccess(responseBody)
             } else {
-                onError("Successful response but no body, had status: ${response.code()}, message: ${response.message()}")
+                onError(context.getString(R.string.successful_response_no_body, response.code(), response.message()))
             }
         } else {
             val errorBody = response.errorBody()
@@ -190,18 +212,18 @@ class GenericWebHandler<T>(
                     errorConverter.convert(errorBody).also { errorBody.close() }
                 } catch (e: JsonDataException) {
                     val message =
-                        "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
+                        context.getString(R.string.unknown_error_no_body, response.code(), response.message())
                     Log.w(TAG, message)
                     onError(message)
                     return
                 }
-                val message = errorResponse?.message?.replace("; ", " and ")
-                    ?: "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
+                val message = errorResponse?.message?.replace("; ", " ${context.getString(R.string.and)} ")
+                    ?: context.getString(R.string.unknown_error_no_body, response.code(), response.message())
                 Log.w(TAG, "Error: $message")
                 onError(message)
             } else {
                 val message =
-                    "Unknown error with no body: ${response.code()}, message: ${response.message()}" //TODO string vars
+                    context.getString(R.string.unknown_error_no_body, response.code(), response.message())
                 Log.w(TAG, message)
                 onError(message)
             }
@@ -210,10 +232,10 @@ class GenericWebHandler<T>(
 
     override fun onFailure(call: Call<T>, t: Throwable) {
         if (t is SocketTimeoutException) {
-            onError("The connection to the server timed out!") //TODO use string var
+            onError(context.getString(R.string.server_timeout))
         } else {
             Log.e(TAG, "Unknown error when sending request", t)
-            onError("Unknown error when sending request: ${t.localizedMessage}; ${t.stackTrace}") //TODO use string var
+            onError(context.getString(R.string.unknown_error_exception, t.localizedMessage))
         }
     }
 }

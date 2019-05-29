@@ -9,7 +9,7 @@ import java.util.*
 @Entity(tableName = Recording.TABLE_NAME)
 class Recording(
     val fileName: String,
-    val latLng: LatLng,
+    val latLng: LatLng?,
     val dateTime: Date,
     var serverId: Long? = null,
     @PrimaryKey(autoGenerate = true) var id: Long = 0

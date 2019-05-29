@@ -1,6 +1,5 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -10,10 +9,10 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.edit
 import nz.ac.canterbury.seng440.kokakolocator.R
-import nz.ac.canterbury.seng440.kokakolocator.server.CacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.server.SuccessfulRegistrationData
+import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
+import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -53,7 +52,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun register() {
-        CacophonyServer.register(
+        cacophonyServer().register(
             username.text.toString(),
             email.text.toString(),
             password.text.toString(),
@@ -63,12 +62,12 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun onRegisterSuccess(response: SuccessfulRegistrationData) {
-        getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).edit {
-            putString(TOKEN_KEY, response.token)
-            putString(USERNAME_KEY, response.username)
-            putString(GROUP_NAME_KEY, response.groupName)
-            putString(DEVICE_NAME_KEY, response.deviceName)
-        }
+        val prefs = prefs()
+        prefs.authToken = response.token
+        prefs.username = response.username
+        prefs.groupName = response.groupName
+        prefs.deviceName = response.deviceName
+
         val welcome = getString(R.string.welcome)
         Toast.makeText(
             applicationContext,
