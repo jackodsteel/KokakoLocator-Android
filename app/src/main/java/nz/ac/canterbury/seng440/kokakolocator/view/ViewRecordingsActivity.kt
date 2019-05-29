@@ -12,11 +12,7 @@ import nz.ac.canterbury.seng440.kokakolocator.database.database
 import android.widget.AdapterView.OnItemClickListener
 import android.util.DisplayMetrics
 import android.view.Display
-
-
-
-
-
+import android.widget.Toast
 
 
 class ViewRecordingsActivity : AppCompatActivity() {
@@ -37,12 +33,18 @@ class ViewRecordingsActivity : AppCompatActivity() {
 
 
         viewManager = LinearLayoutManager(this)
-        viewAdapter = RecordingsAdapter(recordingsList, this)
+        viewAdapter = RecordingsAdapter(recordingsList, this,{record:Recording -> recordItemClicked(record)})
 
 
         recordings_recycler.adapter = viewAdapter
         recordings_recycler.layoutManager = viewManager
 
+    }
+
+
+
+    private fun recordItemClicked(record : Recording) {
+        Toast.makeText(this, "Clicked: ${record.toString()}", Toast.LENGTH_LONG).show()
     }
 
 }

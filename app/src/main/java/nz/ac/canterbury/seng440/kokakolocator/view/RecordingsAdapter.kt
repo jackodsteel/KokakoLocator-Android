@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.recordings_row.view.*
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.database.Recording
-class RecordingsAdapter(val Dataset: List<Recording>,val context:Context) :
+class RecordingsAdapter(val Dataset: List<Recording>,val context:Context,val clickListener:(Recording) -> Unit) :
     RecyclerView.Adapter<ViewHolder>(){
+
+
 
 
     override fun getItemCount(): Int {
@@ -23,6 +25,8 @@ class RecordingsAdapter(val Dataset: List<Recording>,val context:Context) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.recordingsTitle?.text = Dataset[position].toString()
+
+        (holder).bind(Dataset[position],clickListener)
     }
 
 
@@ -32,8 +36,14 @@ class RecordingsAdapter(val Dataset: List<Recording>,val context:Context) :
 
 }
 
-class ViewHolder (view: View) : RecyclerView.ViewHolder(view){
-    val recordingsTitle = view.recordingsTitle
+class ViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView){
+    val recordingsTitle = itemView.recordingsTitle
+    fun bind(record: Recording,clickListener: (Recording) -> Unit){
+        itemView.setOnClickListener{clickListener(record)}
+
+
+    }
+
 
 
 }
