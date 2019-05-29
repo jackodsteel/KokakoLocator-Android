@@ -115,7 +115,7 @@ class RecordAudioActivity : AppCompatActivity() {
             Log.e(TAG, "Wasn't logged in properly. Logging user out. token: $token, deviceName: $deviceName")
             Toast.makeText(
                 this,
-                "There was an issue with your login info. Please log in again.",
+                "There was an issue with your login info. Please log in again.", //TODO string var
                 Toast.LENGTH_LONG
             ) //TODO string var
                 .show()
@@ -182,10 +182,10 @@ class RecordAudioActivity : AppCompatActivity() {
                 when {
                     denied.isEmpty() -> startRecording()
                     else -> AlertDialog.Builder(this)
-                        .setTitle("Cannot run without permissions")
-                        .setMessage("These permissions are required for the app to function correctly.")
-                        .setPositiveButton("Add permissions") { _, _ -> checkRequiredPermissions() }
-                        .setNegativeButton("No") { _, _ -> }
+                        .setTitle("Cannot run without permissions") //TODO string var
+                        .setMessage("These permissions are required for the app to function correctly.") //TODO string var
+                        .setPositiveButton("Add permissions") { _, _ -> checkRequiredPermissions() } //TODO string var
+                        .setNegativeButton("No") { _, _ -> } //TODO string var
                         .create()
                         .show()
                 }
@@ -194,10 +194,10 @@ class RecordAudioActivity : AppCompatActivity() {
                     denied.isEmpty() -> getLocation()
                     denied.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it.second) } ->
                         AlertDialog.Builder(this)
-                            .setTitle("Location permissions")
-                            .setMessage("Your location will not be recorded when making a recording without these permissions.")
-                            .setPositiveButton("Add permissions") { _, _ -> checkLocationPermissions() }
-                            .setNegativeButton("No") { _, _ -> }
+                            .setTitle("Location permissions") //TODO string var
+                            .setMessage("Your location will not be recorded when making a recording without these permissions.") //TODO string var
+                            .setPositiveButton("Add permissions") { _, _ -> checkLocationPermissions() } //TODO string var
+                            .setNegativeButton("No") { _, _ -> } //TODO string var
                             .create()
                             .show()
                 }
