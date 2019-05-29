@@ -10,24 +10,28 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 
 /**
- * Represents the direct calls that need to be made to the Cacophony API
+ * Represents the direct calls that need to be made to the Cacophony API via Retrofit
  */
 interface CacophonyApi {
+
+    companion object {
+        const val API_ROOT = "/api/v1"
+    }
 
     @POST("/authenticate_user")
     fun login(@Body body: LoginRequestBody): Call<LoginResponseBody>
 
-    @POST("/api/v1/users")
+    @POST("$API_ROOT/users")
     fun register(@Body body: RegisterRequestBody): Call<RegisterResponseBody>
 
-    @POST("/api/v1/devices")
+    @POST("$API_ROOT/devices")
     fun registerDevice(@Header("Authorization") auth: String, @Body body: RegisterDeviceRequestBody): Call<RegisterDeviceResponseBody>
 
-    @POST("/api/v1/groups")
+    @POST("$API_ROOT/groups")
     fun registerGroup(@Header("Authorization") auth: String, @Body body: RegisterGroupRequestBody): Call<RegisterGroupResponseBody>
 
     @Multipart
-    @POST("/api/v1/recordings/{deviceName}")
+    @POST("$API_ROOT/recordings/{deviceName}")
     fun uploadAudioRecording(
         @Header("Authorization") token: String,
         @Path(value = "deviceName", encoded = true) deviceName: String,

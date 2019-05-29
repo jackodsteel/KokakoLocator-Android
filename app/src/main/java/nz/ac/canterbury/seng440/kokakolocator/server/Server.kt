@@ -22,8 +22,8 @@ import java.io.File
 import java.net.SocketTimeoutException
 import java.util.*
 
-const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
-//const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
+//const val CACOPHONY_ROOT_URL = "https://c.jacksteel.co.nz/"
+const val CACOPHONY_ROOT_URL = "https://api-test.cacophony.org.nz/"
 
 /**
  * Wraps the CacophonyApi in a more usable interface for internal use
