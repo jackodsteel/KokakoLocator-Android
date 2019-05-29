@@ -10,6 +10,11 @@ import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.database.Recording
 import nz.ac.canterbury.seng440.kokakolocator.database.database
 import android.widget.AdapterView.OnItemClickListener
+import android.util.DisplayMetrics
+import android.view.Display
+
+
+
 
 
 
