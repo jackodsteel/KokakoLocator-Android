@@ -7,11 +7,11 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.server.SuccessfulRegistrationData
 import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
+import nz.ac.canterbury.seng440.kokakolocator.util.longToast
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
 class RegisterActivity : AppCompatActivity() {
@@ -68,18 +68,13 @@ class RegisterActivity : AppCompatActivity() {
             groupName = response.groupName
             deviceName = response.deviceName
         }
-        val welcome = getString(R.string.welcome)
-        Toast.makeText(
-            applicationContext,
-            welcome,
-            Toast.LENGTH_LONG
-        ).show()
+        longToast(getString(R.string.welcome))
         val toMainIntent = Intent(this, MainActivity::class.java)
         startActivity(toMainIntent)
     }
 
     private fun showLoginFailed(errorString: String) {
-        Toast.makeText(applicationContext, errorString, Toast.LENGTH_LONG).show()
+        longToast(errorString)
         loading.visibility = View.INVISIBLE
     }
 }

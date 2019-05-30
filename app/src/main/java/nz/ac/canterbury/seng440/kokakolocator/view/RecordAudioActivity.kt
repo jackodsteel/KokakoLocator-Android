@@ -8,7 +8,6 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,7 +22,9 @@ import nz.ac.canterbury.seng440.kokakolocator.database.database
 import nz.ac.canterbury.seng440.kokakolocator.server.UploadAudioRequestMetadata
 import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
+import nz.ac.canterbury.seng440.kokakolocator.util.longToast
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
+import nz.ac.canterbury.seng440.kokakolocator.util.shortToast
 import java.io.File
 import java.util.*
 
@@ -108,10 +109,10 @@ class RecordAudioActivity : AppCompatActivity() {
             mediaRecorder.start()
             isRecording = true
             imageButton.setImageResource(R.drawable.microphone_activated)
-            Toast.makeText(this, getString(R.string.recording_started), Toast.LENGTH_SHORT).show()
+            shortToast(getString(R.string.recording_started))
         } catch (e: Exception) {
             Log.e(TAG, "Error when starting recording", e)
-            Toast.makeText(this, getString(R.string.generic_error) + e, Toast.LENGTH_LONG).show()
+            longToast(getString(R.string.generic_error))
         }
     }
 
@@ -134,7 +135,7 @@ class RecordAudioActivity : AppCompatActivity() {
 
         if (token == null || deviceName == null) {
             Log.e(TAG, "Wasn't logged in properly. Logging user out. token: $token, deviceName: $deviceName")
-            Toast.makeText(this, getString(R.string.error_login_details), Toast.LENGTH_LONG).show()
+            longToast(getString(R.string.error_login_details))
             goTo(LandingActivity::class)
             return
         }
@@ -155,12 +156,12 @@ class RecordAudioActivity : AppCompatActivity() {
             metadata,
             {
                 Log.i(TAG, "Successfully uploaded recording: ${file.name}, server id: ${it.recordingId}")
-                Toast.makeText(this, getString(R.string.upload_success), Toast.LENGTH_LONG).show()
+                longToast(getString(R.string.upload_success))
                 setServerRecordingId(recording, it.recordingId)
             },
             {
                 Log.w(TAG, "Had error when uploading recording ID: ${recording.id}, $it")
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                longToast(it)
             }
         )
     }

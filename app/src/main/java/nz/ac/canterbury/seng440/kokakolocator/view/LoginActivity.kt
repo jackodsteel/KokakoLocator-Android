@@ -6,12 +6,12 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.server.LoginResponseBody
 import nz.ac.canterbury.seng440.kokakolocator.server.cacophonyServer
 import nz.ac.canterbury.seng440.kokakolocator.util.goTo
+import nz.ac.canterbury.seng440.kokakolocator.util.longToast
 import nz.ac.canterbury.seng440.kokakolocator.util.prefs
 
 class LoginActivity : AppCompatActivity() {
@@ -31,9 +31,7 @@ class LoginActivity : AppCompatActivity() {
         login = findViewById(R.id.register)
         loading = findViewById(R.id.loading)
 
-
         password.apply {
-
             setOnEditorActionListener { _, actionId, _ ->
                 when (actionId) {
                     EditorInfo.IME_ACTION_DONE ->
@@ -66,17 +64,12 @@ class LoginActivity : AppCompatActivity() {
             groupName = "${usernameStr}_default"
             deviceName = "${usernameStr}_default_device"
         }
-        val welcome = getString(R.string.welcome)
-        Toast.makeText(
-            applicationContext,
-            welcome,
-            Toast.LENGTH_LONG
-        ).show()
+        longToast(getString(R.string.welcome))
         goTo(MainActivity::class)
     }
 
     private fun showLoginFailed(errorString: String) {
-        Toast.makeText(applicationContext, errorString, Toast.LENGTH_SHORT).show()
+        longToast(errorString)
         loading.visibility = View.INVISIBLE
     }
 }
