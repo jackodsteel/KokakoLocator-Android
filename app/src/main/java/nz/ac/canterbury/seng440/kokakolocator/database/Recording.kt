@@ -19,7 +19,7 @@ class Recording(
 }
 
     override fun toString(): String {
-        return "Date & Time:$dateTime|Location:(${latLng?.latitude},${latLng?.longitude}))"
+        return "Date & Time: $dateTime | Location: ${if (latLng != null) "(${latLng.latitude}, ${latLng.longitude})" else "Unknown"})"
     }
 
     val file: File

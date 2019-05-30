@@ -9,12 +9,12 @@ import com.squareup.moshi.ToJson
  */
 class LatLngAdapter {
     @FromJson
-    fun fromJson(latLngArr: Array<Double>): LatLng {
-        return LatLng(latLngArr[0], latLngArr[1])
+    fun fromJson(latLngArr: Array<Double>?): LatLng? {
+        return if (latLngArr != null && latLngArr.size == 2) LatLng(latLngArr[0], latLngArr[1]) else null
     }
 
     @ToJson
-    fun toJson(latLng: LatLng): Array<Double> {
-        return arrayOf(latLng.latitude, latLng.longitude)
+    fun toJson(latLng: LatLng?): Array<Double>? {
+        return if (latLng != null) arrayOf(latLng.latitude, latLng.longitude) else null
     }
 }
