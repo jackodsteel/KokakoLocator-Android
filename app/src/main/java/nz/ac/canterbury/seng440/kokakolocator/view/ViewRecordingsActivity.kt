@@ -22,6 +22,7 @@ class ViewRecordingsActivity : AppCompatActivity() {
     private var recordingsList: MutableList<Recording> = mutableListOf()
 
     private var mediaPlayer: MediaPlayer? = null
+    private var onPlaybackFinishedCallback: OnPlaybackFinishedCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,7 @@ class ViewRecordingsActivity : AppCompatActivity() {
         super.onPause()
         mediaPlayer?.release()
         mediaPlayer = null
+        onPlaybackFinishedCallback?.invoke()
     }
 
     private fun getItemsFromDb() {
@@ -71,13 +73,16 @@ class ViewRecordingsActivity : AppCompatActivity() {
         viewAdapter.notifyDataSetChanged()
     }
 
-    private fun recordItemClicked(record: Recording) {
+    private fun recordItemClicked(record: Recording, onPlaybackFinishedCallback: OnPlaybackFinishedCallback) {
         FileInputStream(record.fileName).use {
+            this.onPlaybackFinishedCallback?.invoke()
+            this.onPlaybackFinishedCallback = onPlaybackFinishedCallback
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(it.fd)
                 prepare()
                 start()
+                setOnCompletionListener { onPlaybackFinishedCallback() }
             }
         }
     }
