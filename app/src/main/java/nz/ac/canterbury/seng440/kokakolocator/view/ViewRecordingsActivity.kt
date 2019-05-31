@@ -1,9 +1,9 @@
 package nz.ac.canterbury.seng440.kokakolocator.view
 
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,46 +11,29 @@ import kotlinx.android.synthetic.main.activity_view_recordings.*
 import nz.ac.canterbury.seng440.kokakolocator.R
 import nz.ac.canterbury.seng440.kokakolocator.database.Recording
 import nz.ac.canterbury.seng440.kokakolocator.database.database
-import android.widget.AdapterView.OnItemClickListener
-import android.util.DisplayMetrics
-import android.view.Display
-import android.widget.Toast
-import android.media.AudioManager
-import android.view.Menu
-import android.view.MenuItem
 import java.io.FileInputStream
-import java.io.IOException
-
 
 class ViewRecordingsActivity : AppCompatActivity() {
-    private lateinit var viewAdapter: RecyclerView.Adapter<*>
+
+    private lateinit var viewAdapter: RecyclerView.Adapter<RecordingViewHolder>
+
     private lateinit var viewManager: RecyclerView.LayoutManager
+
     private var recordingsList: MutableList<Recording> = mutableListOf()
+
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_recordings)
 
-        Thread{
-            recordingsList.clear()
-            recordingsList.addAll(database().recordingDao().getAll())
-            runOnUiThread { viewAdapter.notifyDataSetChanged() }
-        }.start()
-
-
-
         viewManager = LinearLayoutManager(this)
-        viewAdapter = RecordingsAdapter(recordingsList, this,{record:Recording -> recordItemClicked(record)})
+        viewAdapter = RecordingsAdapter(recordingsList, this, this::recordItemClicked)
 
+        recordingsRecycler.adapter = viewAdapter
+        recordingsRecycler.layoutManager = viewManager
 
-        recordings_recycler.adapter = viewAdapter
-        recordings_recycler.layoutManager = viewManager
-
-    }
-
-    fun sort(){
-        recordingsList.reverse()
-        viewAdapter.notifyDataSetChanged()
+        getItemsFromDb()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -58,37 +41,45 @@ class ViewRecordingsActivity : AppCompatActivity() {
         return true
     }
 
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
-        R.id.sort_arrows -> {
-            sort()
-            true
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when {
+            item.itemId == R.id.sort_arrows -> {
+                reverseItems()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        else -> super.onOptionsItemSelected(item)
     }
 
+    override fun onPause() {
+        super.onPause()
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
 
-
-    private fun recordItemClicked(record : Recording) {
-        val mediaPlayer = MediaPlayer()
-        var fis: FileInputStream? = null
-        try {
-            fis = FileInputStream(record.fileName)
-            mediaPlayer.setDataSource(fis.getFD())
-            mediaPlayer.prepare()
-            mediaPlayer.start()
-            sort()
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close()
-                } catch (ignore: IOException) {
-                }
-
+    private fun getItemsFromDb() {
+        Thread {
+            recordingsList.addAll(database().recordingDao().getAll())
+            runOnUiThread {
+                viewAdapter.notifyDataSetChanged()
             }
+        }.start()
+    }
 
+    private fun reverseItems() {
+        recordingsList.reverse()
+        viewAdapter.notifyDataSetChanged()
+    }
+
+    private fun recordItemClicked(record: Recording) {
+        FileInputStream(record.fileName).use {
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(it.fd)
+                prepare()
+                start()
+            }
         }
-
     }
 
 }
